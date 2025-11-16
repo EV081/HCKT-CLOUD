@@ -16,7 +16,14 @@ def lambda_handler(event, context):
         raw_body = event.get("body")
         if isinstance(raw_body, str):
             if raw_body:
-                body = json.loads(raw_body)
+                try:
+                    body = json.loads(raw_body)
+                except json.JSONDecodeError:
+                    print(f"Body inválido: {raw_body}")
+                    return {
+                        "statusCode": 400,
+                        "body": json.dumps({"message": "Body JSON inválido"})
+                    }
             else:
                 body = {}
         elif isinstance(raw_body, dict):
