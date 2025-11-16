@@ -2,7 +2,7 @@ service: usuarios
 
 provider:
   name: aws
-  runtime: python3.12
+  runtime: python3.13
   memorySize: 512
   timeout: 300
   region: us-east-1
