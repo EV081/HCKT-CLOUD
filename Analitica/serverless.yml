@@ -2,7 +2,7 @@ service: alerta-utec-analitica
 
 provider:
   name: aws
-  runtime: python3.13
+  runtime: python3.10
   region: us-east-1
   memorySize: 512
   timeout: 60
@@ -12,39 +12,105 @@ provider:
     TABLE_INCIDENTES: ${env:TABLE_INCIDENTES}
     TABLE_LOGS: ${env:TABLE_LOGS}
     TABLE_EMPLEADOS: ${env:TABLE_EMPLEADOS}
+    ANALITICA_S3_BUCKET: ${env:ANALITICA_S3_BUCKET}
+    ANALITICA_GLUE_DATABASE: ${env:ANALITICA_GLUE_DATABASE}
   layers:
     - ${cf:alerta-utec-dependencias-dev.PythonDependenciesLayerExport}
 
-functions: {}
+functions:
+  # Función para subir el DAG a S3
+  UploadDAG:
+    handler: handler.upload_dag
+    timeout: 30
+    environment:
+      ANALITICA_S3_BUCKET: ${env:ANALITICA_S3_BUCKET}
+    events:
+      - schedule:
+          rate: rate(1 day)
+          enabled: false
+
+  # Lambda 1: Análisis de incidentes por piso y estado
+  AnalisisIncidentesPorPiso:
+    handler: handler.analisis_incidentes_por_piso
+    timeout: 30
+    events:
+      - http:
+          path: analitica/incidentes-por-piso
+          method: get
+          cors: true
+
+  # Lambda 2: Análisis de incidentes por tipo y urgencia
+  AnalisisIncidentesPorTipo:
+    handler: handler.analisis_incidentes_por_tipo
+    timeout: 30
+    events:
+      - http:
+          path: analitica/incidentes-por-tipo
+          method: get
+          cors: true
+
+  # Lambda 3: Análisis de tiempo de resolución
+  AnalisisTiempoResolucion:
+    handler: handler.analisis_tiempo_resolucion
+    timeout: 30
+    events:
+      - http:
+          path: analitica/tiempo-resolucion
+          method: get
+          cors: true
+
+  # Lambda 4: Análisis de reportes por usuario
+  AnalisisReportesPorUsuario:
+    handler: handler.analisis_reportes_por_usuario
+    timeout: 30
+    events:
+      - http:
+          path: analitica/reportes-por-usuario
+          method: get
+          cors: true
+
+  # Lambda 5: Trigger ETL Pipeline
+  TriggerETL:
+    handler: handler.trigger_etl_pipeline
+    timeout: 30
+    events:
+      - http:
+          path: analitica/trigger-etl
+          method: post
+          cors: true
 
 resources:
   Resources:
+    # Log Group para Airflow
     AnaliticaAirflowLogGroup:
       Type: AWS::Logs::LogGroup
       Properties:
         LogGroupName: /ecs/alerta-utec-airflow
         RetentionInDays: 14
 
+    # Cluster ECS
     AnaliticaAirflowCluster:
       Type: AWS::ECS::Cluster
       Properties:
         ClusterName: alerta-utec-analitica-cluster
 
+    # Security Group
     AnaliticaAirflowSecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
-        GroupDescription: Acceso saliente para Airflow
+        GroupDescription: Acceso para Airflow en ECS
         VpcId: ${env:ANALITICA_VPC_ID}
         SecurityGroupEgress:
           - IpProtocol: "-1"
             CidrIp: 0.0.0.0/0
 
+    # Task Definition
     AnaliticaAirflowTaskDefinition:
       Type: AWS::ECS::TaskDefinition
       Properties:
         Family: alerta-utec-analitica-airflow
-        Cpu: "1024"
-        Memory: "2048"
+        Cpu: "2048"
+        Memory: "4096"
         NetworkMode: awsvpc
         RequiresCompatibilities:
           - FARGATE
@@ -56,6 +122,7 @@ resources:
             Essential: true
             PortMappings:
               - ContainerPort: 8080
+                Protocol: tcp
             LogConfiguration:
               LogDriver: awslogs
               Options:
@@ -63,6 +130,8 @@ resources:
                 awslogs-region: ${env:AWS_REGION, 'us-east-1'}
                 awslogs-stream-prefix: airflow
             Environment:
+              - Name: AWS_DEFAULT_REGION
+                Value: ${env:AWS_REGION, 'us-east-1'}
               - Name: AWS_REGION
                 Value: ${env:AWS_REGION, 'us-east-1'}
               - Name: AWS_ACCOUNT_ID
@@ -75,12 +144,6 @@ resources:
                 Value: ${env:ANALITICA_GLUE_DATABASE}
               - Name: ANALITICA_GLUE_CRAWLER
                 Value: ${env:ANALITICA_GLUE_CRAWLER}
-              - Name: ANALITICA_GLUE_ROLE_NAME
-                Value: ${env:ANALITICA_GLUE_ROLE_NAME, 'GlueCrawlerRole'}
-              - Name: ANALITICA_DAG_S3_URI
-                Value: s3://${env:ANALITICA_S3_BUCKET}/dags/etl_dynamodb.py
-              - Name: AIRFLOW_UID
-                Value: "0"
               - Name: AIRFLOW__CORE__EXECUTOR
                 Value: SequentialExecutor
               - Name: AIRFLOW__CORE__LOAD_EXAMPLES
@@ -89,19 +152,112 @@ resources:
                 Value: /opt/airflow/dags
               - Name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
                 Value: sqlite:////opt/airflow/airflow.db
-            Command:
+              - Name: AIRFLOW__WEBSERVER__EXPOSE_CONFIG
+                Value: "True"
+              - Name: _AIRFLOW_DB_MIGRATE
+                Value: "true"
+              - Name: _AIRFLOW_WWW_USER_CREATE
+                Value: "true"
+              - Name: _AIRFLOW_WWW_USER_USERNAME
+                Value: admin
+              - Name: _AIRFLOW_WWW_USER_PASSWORD
+                Value: admin
+            EntryPoint:
               - /bin/bash
               - -c
+            Command:
               - |
                 set -e
-                pip install --quiet awscli
+                echo "=========================================="
+                echo "🚀 Iniciando Airflow en ECS (SequentialExecutor)"
+                echo "=========================================="
+                
+                echo "📦 Instalando dependencias..."
+                pip install --quiet --no-cache-dir boto3 awscli 2>&1 | grep -v "Requirement already satisfied" || true
+                
+                echo "📁 Creando directorio de DAGs..."
                 mkdir -p /opt/airflow/dags
-                aws s3 cp "${ANALITICA_DAG_S3_URI}" /opt/airflow/dags/etl_dynamodb.py
-                airflow db init
+                
+                echo "📥 Intentando descargar DAG desde S3..."
+                MAX_RETRIES=5
+                RETRY_COUNT=0
+                DAG_DOWNLOADED=false
+                
+                while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+                  if aws s3 ls "s3://${ANALITICA_S3_BUCKET}/dags/etl_dynamodb.py" 2>/dev/null; then
+                    echo "✓ DAG encontrado en S3, descargando..."
+                    if aws s3 cp "s3://${ANALITICA_S3_BUCKET}/dags/etl_dynamodb.py" /opt/airflow/dags/etl_dynamodb.py; then
+                      echo "✓ DAG descargado exitosamente"
+                      DAG_DOWNLOADED=true
+                      break
+                    fi
+                  fi
+                  
+                  RETRY_COUNT=$((RETRY_COUNT + 1))
+                  if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                    echo "⏳ Intento $RETRY_COUNT/$MAX_RETRIES - Esperando 10 segundos..."
+                    sleep 10
+                  fi
+                done
+                
+                if [ "$DAG_DOWNLOADED" = false ]; then
+                  echo "⚠️  No se pudo descargar el DAG después de $MAX_RETRIES intentos"
+                  echo "📝 Creando DAG de ejemplo..."
+                  cat > /opt/airflow/dags/ejemplo_dag.py << 'EOFDAG'
+                from datetime import datetime
+                from airflow import DAG
+                from airflow.operators.python import PythonOperator
+                
+                def hello_world():
+                    print("=" * 60)
+                    print("🎉 Airflow está funcionando en ECS!")
+                    print("=" * 60)
+                    print("📋 Para usar el DAG real:")
+                    print("   1. Verifica que etl_dynamodb.py esté en S3:")
+                    print("      s3://${ANALITICA_S3_BUCKET}/dags/etl_dynamodb.py")
+                    print("   2. Reinicia el servicio ECS")
+                    print("=" * 60)
+                
+                with DAG(
+                    'ejemplo_dag',
+                    description='DAG de ejemplo - reemplazar con etl_dynamodb.py',
+                    start_date=datetime(2024, 1, 1),
+                    schedule_interval='@daily',
+                    catchup=False,
+                    tags=['ejemplo']
+                ) as dag:
+                    task = PythonOperator(
+                        task_id='hello_airflow',
+                        python_callable=hello_world
+                    )
+                EOFDAG
+                fi
+                
+                echo "🗄️  Inicializando base de datos de Airflow..."
+                airflow db migrate
+                
+                echo "👤 Creando usuario admin..."
+                airflow users create \
+                  --username admin \
+                  --password admin \
+                  --firstname Admin \
+                  --lastname User \
+                  --role Admin \
+                  --email admin@example.com 2>&1 | grep -v "already exists" || true
+                
+                echo "=========================================="
+                echo "✅ Iniciando Airflow Standalone"
+                echo "📊 WebUI: http://localhost:8080"
+                echo "👤 Usuario: admin / admin"
+                echo "=========================================="
+                
                 exec airflow standalone
 
+    # ECS Service
     AnaliticaAirflowService:
       Type: AWS::ECS::Service
+      DependsOn:
+        - AnaliticaAirflowTaskDefinition
       Properties:
         ServiceName: alerta-utec-analitica-airflow
         Cluster: !Ref AnaliticaAirflowCluster
@@ -123,4 +279,9 @@ resources:
       Value: !Ref AnaliticaAirflowService
       Export:
         Name: alerta-utec-analitica-airflow-service
+    
+    AnaliticaAirflowCluster:
+      Value: !Ref AnaliticaAirflowCluster
+      Export:
+        Name: alerta-utec-analitica-cluster
 

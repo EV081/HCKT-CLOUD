@@ -1218,7 +1218,98 @@
 		},
 		{
 			"name": "Analitica",
-			"item": []
+			"item": [
+				{
+					"name": "Iniciar Airrflow",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_analitica}}/analitica/trigger-etl",
+							"host": [
+								"{{baserUrl_analitica}}"
+							],
+							"path": [
+								"analitica",
+								"trigger-etl"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "incidentes-por-piso",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_analitica}}/analitica/incidentes-por-piso",
+							"host": [
+								"{{baserUrl_analitica}}"
+							],
+							"path": [
+								"analitica",
+								"incidentes-por-piso"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "incidentes-por-tipo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_analitica}}/analitica/incidentes-por-tipo",
+							"host": [
+								"{{baserUrl_analitica}}"
+							],
+							"path": [
+								"analitica",
+								"incidentes-por-tipo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tiempo-resolucion",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_analitica}}/analitica/tiempo-resolucion",
+							"host": [
+								"{{baserUrl_analitica}}"
+							],
+							"path": [
+								"analitica",
+								"tiempo-resolucion"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reportes-por-usuario",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_analitica}}/analitica/reportes-por-usuario",
+							"host": [
+								"{{baserUrl_analitica}}"
+							],
+							"path": [
+								"analitica",
+								"reportes-por-usuario"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
 			"name": "Notificaciones",

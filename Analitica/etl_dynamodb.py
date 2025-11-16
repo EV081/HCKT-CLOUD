@@ -11,11 +11,9 @@ from airflow.decorators import task
 DEFAULT_ARGS = {
     "owner": "analitica",
     "retries": 1,
-    "retry_delay": None,
 }
 
 S3_PREFIX = "analitica/ingesta"
-DEFAULT_GLUE_ROLE_NAME = "GlueCrawlerRole"
 
 def _decimal_default(obj):
     if isinstance(obj, Decimal):
@@ -37,13 +35,14 @@ def _parse_table_mapping(raw_value: str):
     return mapping
 
 with DAG(
-    DAG_ID := "etl_dynamodb_a_glue_athena",
+    dag_id="etl_dynamodb_a_glue_athena",
     description="Ingesta de DynamoDB a S3 con Glue y Athena",
     schedule_interval="@daily",
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime.now(),  # Comenzar desde ahora, no desde el pasado
     catchup=False,
     default_args=DEFAULT_ARGS,
     tags=["analitica", "ingesta"],
+    is_paused_upon_creation=True,  # Pausado al crearse, activar manualmente
 ) as dag:
 
     @task()
@@ -54,8 +53,10 @@ with DAG(
         account_id = os.environ.get("AWS_ACCOUNT_ID")
         if not account_id:
             raise ValueError("AWS_ACCOUNT_ID no está definido en el entorno.")
-        glue_role_name = os.environ.get("ANALITICA_GLUE_ROLE_NAME", DEFAULT_GLUE_ROLE_NAME)
-        glue_role_arn = f"arn:aws:iam::{account_id}:role/{glue_role_name}"
+        
+        # Rol hardcodeado como LabRole
+        glue_role_arn = f"arn:aws:iam::{account_id}:role/LabRole"
+        
         config = {
             "tables": _parse_table_mapping(tables_raw),
             "bucket": os.environ["ANALITICA_S3_BUCKET"],
@@ -87,11 +88,18 @@ with DAG(
         timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
         results = []
 
+        print(f"📊 Iniciando exportación con timestamp: {timestamp}")
+        print(f"🪣 Bucket destino: {cfg['bucket']}")
+        print(f"📁 Prefijo: {cfg['prefix']}")
+
         for logical_name, table_name in cfg["tables"].items():
+            print(f"\n📋 Procesando tabla: {table_name} (como {logical_name})")
+            
             table = dynamodb.Table(table_name)
             items = []
             last_evaluated_key = None
 
+            # Escanear todos los items
             while True:
                 scan_kwargs = {}
                 if last_evaluated_key:
@@ -102,21 +110,61 @@ with DAG(
                 if not last_evaluated_key:
                     break
 
-            key = f"{cfg['prefix']}/{logical_name}/{logical_name}.json"
-            body = json.dumps(items, default=_decimal_default, ensure_ascii=False)
+            print(f"  ✓ Total de registros: {len(items)}")
+
+            # Formato JSON Lines
+            jsonl_lines = []
+            for item in items:
+                json_line = json.dumps(item, default=_decimal_default, ensure_ascii=False)
+                jsonl_lines.append(json_line)
+            
+            body = "\n".join(jsonl_lines)
+
+            # 1. Guardar versión con timestamp (histórico)
+            key_timestamped = f"{cfg['prefix']}/history/{logical_name}/{timestamp}/{logical_name}.jsonl"
+            print(f"  📤 Subiendo versión histórica: {key_timestamped}")
             s3.put_object(
                 Bucket=cfg["bucket"],
-                Key=key,
+                Key=key_timestamped,
                 Body=body.encode("utf-8"),
-                ContentType="application/json",
+                ContentType="application/x-ndjson",
+                Metadata={
+                    "timestamp": timestamp,
+                    "table": table_name,
+                    "records": str(len(items))
+                }
             )
+
+            # 2. Guardar versión "latest" (usado por Athena/Glue)
+            key_latest = f"{cfg['prefix']}/{logical_name}/{logical_name}.jsonl"
+            print(f"  📤 Actualizando versión latest: {key_latest}")
+            s3.put_object(
+                Bucket=cfg["bucket"],
+                Key=key_latest,
+                Body=body.encode("utf-8"),
+                ContentType="application/x-ndjson",
+                Metadata={
+                    "timestamp": timestamp,
+                    "table": table_name,
+                    "records": str(len(items))
+                }
+            )
+
+            print(f"  ✅ Tabla {logical_name} exportada: {len(items)} registros")
 
             results.append({
                 "logical": logical_name,
                 "table": table_name,
                 "records": len(items),
-                "s3_key": key,
+                "s3_key_latest": key_latest,
+                "s3_key_history": key_timestamped
             })
+
+        print(f"\n📊 Resumen de exportación ({timestamp}):")
+        for r in results:
+            print(f"  ✅ {r['logical']}: {r['records']} registros")
+            print(f"     Latest: {r['s3_key_latest']}")
+            print(f"     History: {r['s3_key_history']}")
 
         return {"timestamp": timestamp, "exports": results}
 
@@ -155,17 +203,95 @@ with DAG(
 
     @task()
     def run_glue_crawler(cfg, crawl_name: str):
+        import traceback
         glue = boto3.client("glue", region_name=cfg["region"])
-        glue.start_crawler(Name=crawl_name)
-
-        while True:
+        
+        try:
+            # Verificar estado actual del crawler
+            print(f"🔍 Verificando estado del crawler '{crawl_name}'...")
             details = glue.get_crawler(Name=crawl_name)
             state = details["Crawler"]["State"]
-            if state == "READY":
-                break
-            time.sleep(15)
-
-        return {"crawler": crawl_name, "status": "SUCCEEDED"}
+            print(f"📊 Estado actual: {state}")
+            
+            # Si está corriendo, esperar a que termine
+            if state == "RUNNING":
+                print("⏳ Crawler ya está en ejecución, esperando...")
+                while True:
+                    details = glue.get_crawler(Name=crawl_name)
+                    state = details["Crawler"]["State"]
+                    if state == "READY":
+                        print("✅ Crawler anterior completado")
+                        break
+                    print(f"  ⏳ Estado: {state}, esperando 15s...")
+                    time.sleep(15)
+            
+            # Iniciar el crawler
+            print(f"🚀 Iniciando crawler '{crawl_name}'...")
+            try:
+                glue.start_crawler(Name=crawl_name)
+                print("✅ Crawler iniciado exitosamente")
+            except Exception as e:
+                if "CrawlerRunningException" in str(e):
+                    print("⚠️  Crawler ya está en ejecución")
+                else:
+                    raise
+            
+            # Esperar a que complete
+            print("⏳ Esperando a que el crawler complete...")
+            max_wait = 600  # 10 minutos máximo
+            elapsed = 0
+            
+            while elapsed < max_wait:
+                time.sleep(15)
+                elapsed += 15
+                
+                details = glue.get_crawler(Name=crawl_name)
+                state = details["Crawler"]["State"]
+                last_crawl = details["Crawler"].get("LastCrawl", {})
+                
+                print(f"  [{elapsed}s] Estado: {state}")
+                
+                if state == "READY":
+                    status = last_crawl.get("Status", "UNKNOWN")
+                    tables_created = last_crawl.get("TablesCreated", 0)
+                    tables_updated = last_crawl.get("TablesUpdated", 0)
+                    tables_deleted = last_crawl.get("TablesDeleted", 0)
+                    
+                    print(f"\n📊 Crawler completado:")
+                    print(f"  ✅ Estado: {status}")
+                    print(f"  📋 Tablas creadas: {tables_created}")
+                    print(f"  🔄 Tablas actualizadas: {tables_updated}")
+                    print(f"  ❌ Tablas eliminadas: {tables_deleted}")
+                    
+                    if status == "SUCCEEDED":
+                        return {
+                            "crawler": crawl_name,
+                            "status": "SUCCEEDED",
+                            "tables_created": tables_created,
+                            "tables_updated": tables_updated
+                        }
+                    else:
+                        print(f"⚠️  Crawler terminó con estado: {status}")
+                        error_msg = last_crawl.get("ErrorMessage", "Sin mensaje de error")
+                        print(f"❌ Error: {error_msg}")
+                        return {
+                            "crawler": crawl_name,
+                            "status": status,
+                            "error": error_msg
+                        }
+            
+            print(f"❌ Timeout: Crawler no completó en {max_wait}s")
+            return {
+                "crawler": crawl_name,
+                "status": "TIMEOUT",
+                "error": f"Crawler no completó en {max_wait} segundos"
+            }
+                    
+        except Exception as e:
+            error_msg = f"Error ejecutando crawler: {str(e)}"
+            print(f"❌ {error_msg}")
+            print(f"Stack trace: {traceback.format_exc()}")
+            raise
 
     configuration = load_config()
     bucket_ready = ensure_bucket(configuration)
