@@ -23,7 +23,7 @@ def lambda_handler(event, context):
     
     resultado_validacion = validar_token(token)
 
-    if usuario_autenticado["role"] != "user":
+    if usuario_autenticado["rol"] != "estudiante":
         return {
             "statusCode": 403,
             "body": json.dumps({"message": "No tienes permisos para crear un incidente"})
@@ -36,7 +36,7 @@ def lambda_handler(event, context):
     
     usuario_autenticado = {
         "correo": resultado_validacion.get("correo"),
-        "role": resultado_validacion.get("role")
+        "rol": resultado_validacion.get("rol")
     }
     
     incidente_id = event.get('pathParameters', {}).get('incidente_id')

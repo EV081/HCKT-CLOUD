@@ -21,7 +21,7 @@ def lambda_handler(event, context):
     
     usuario_autenticado = {
         "correo": resultado_validacion.get("correo"),
-        "role": resultado_validacion.get("role")
+        "rol": resultado_validacion.get("rol")
     }
 
     body = json.loads(event.get('body', '{}'))
@@ -33,12 +33,12 @@ def lambda_handler(event, context):
             "body": json.dumps({"message": "Falta 'incidente_id' en la solicitud"})
         }
 
-    if usuario_autenticado["role"] == "admin":
-        print("Acceso concedido como admin")
-    elif usuario_autenticado["role"] == "operador":
-        print("Acceso concedido como operador")
-    elif usuario_autenticado["role"] == "user":
-        print("Acceso concedido como user")
+    if usuario_autenticado["rol"] == "personal_administrativo":
+        print("Acceso concedido como personal_administrativo")
+    elif usuario_autenticado["rol"] == "autoridad":
+        print("Acceso concedido como autoridad")
+    elif usuario_autenticado["rol"] == "estudiante":
+        print("Acceso concedido como estudiante")
         if not incidente_id:
             return {
                 "statusCode": 403,
@@ -54,13 +54,13 @@ def lambda_handler(event, context):
             }
         incidente = response['Item']
         
-        if usuario_autenticado["role"] == "admin" and incidente.get('usuario_correo') != usuario_autenticado["correo"]:
+        if usuario_autenticado["rol"] == "personal_administrativo" and incidente.get('usuario_correo') != usuario_autenticado["correo"]:
             return {
                 "statusCode": 403,
                 "body": json.dumps({"message": "Acceso denegado: No puedes ver reportes de otros usuarios"})
             }
 
-        if usuario_autenticado["role"] == "user" and incidente.get('usuario_correo') != usuario_autenticado["correo"]:
+        if usuario_autenticado["rol"] == "estudiante" and incidente.get('usuario_correo') != usuario_autenticado["correo"]:
             return {
                 "statusCode": 403,
                 "body": json.dumps({"message": "Acceso denegado: Solo puedes ver tu propio reporte"})

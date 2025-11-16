@@ -31,10 +31,10 @@ def lambda_handler(event, context):
     
     usuario_autenticado = {
         "correo": resultado_validacion.get("correo"),
-        "role": resultado_validacion.get("role")
+        "rol": resultado_validacion.get("rol")
     }
     
-    if usuario_autenticado["role"] not in ["user", "admin"]:
+    if usuario_autenticado["rol"] not in ["estudiante", "personal_administrativo"]:
         return {
             "statusCode": 403,
             "body": json.dumps({"message": "No tienes permisos para crear un incidente"})

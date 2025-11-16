@@ -30,7 +30,7 @@ def validar_token(token):
         return {
             "valido": True,
             "correo": payload.get("correo"),
-            "role": payload.get("role", "Cliente"),
+            "rol": payload.get("rol", "estudiante"),
             "nombre": payload.get("nombre", "")
         }
     except jwt.ExpiredSignatureError:

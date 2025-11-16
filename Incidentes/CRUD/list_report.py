@@ -3,7 +3,7 @@ import json
 import math
 import boto3
 from boto3.dynamodb.conditions import Key
-
+from reportes.utils import validar_token
 TABLE_INCIDENTES = os.environ.get("TABLE_INCIDENTES")
 
 def _resp(code, body):
@@ -25,7 +25,7 @@ def lambda_handler(event, context):
     
     usuario_autenticado = {
         "correo": resultado_validacion.get("correo"),
-        "role": resultado_validacion.get("role")
+        "rol": resultado_validacion.get("rol")
     }
 
     body = json.loads(event.get("body") or "{}")
@@ -94,7 +94,7 @@ def lambda_handler(event, context):
     rpage = table.query(**qargs)
     items = rpage.get("Items", [])
 
-    if usuario_autenticado["role"] == "user":
+    if usuario_autenticado["rol"] == "estudiante":
         items = [
             {  
                 "titulo": item.get("titulo"),
@@ -107,7 +107,7 @@ def lambda_handler(event, context):
             }
             for item in items
         ]
-    elif usuario_autenticado["role"] in ["admin", "operador"]:
+    elif usuario_autenticado["rol"] in ["personal_administrativo", "autoridad"]:
         items = [
             {   
                 "incidente_id": item.get("incidente_id"),
