@@ -20,5 +20,5 @@ requests>=2.32.0
 # HTTP client
 urllib3>=2.0.0
 
-# Sending emails
-#sendgrid>=6.9.1
+# EMAIL
+requests

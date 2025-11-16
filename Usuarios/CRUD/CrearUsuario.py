@@ -1,27 +1,24 @@
 import json
 import boto3
 import os
+import requests  # <--- NUEVO
 from CRUD.utils import generar_token, validar_token, ALLOWED_ROLES
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 
-SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY")
 EMAIL_FROM = os.environ.get("EMAIL_FROM", "no-reply@example.com")
-# -------------------------------------------
 
 TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS", "TABLE_USUARIOS")
 
 dynamodb = boto3.resource("dynamodb")
 usuarios_table = dynamodb.Table(TABLE_USUARIOS_NAME)
 
-# --- NUEVO: función para enviar correo de bienvenida ---
 def enviar_correo_bienvenida(nombre: str, correo: str):
     """
-    Envía un correo de bienvenida usando SendGrid.
+    Envía un correo de bienvenida usando Brevo (Sendinblue) vía API HTTP.
     Si falta configuración, solo hace log y no rompe la Lambda.
     """
-    if not SENDGRID_API_KEY or not EMAIL_FROM:
-        print("SendGrid no configurado (falta SENDGRID_API_KEY o EMAIL_FROM)")
+    if not BREVO_API_KEY or not EMAIL_FROM:
+        print("Brevo no configurado (falta BREVO_API_KEY o EMAIL_FROM)")
         return
 
     asunto = "Bienvenido a Alerta UTEC"
@@ -31,22 +28,24 @@ def enviar_correo_bienvenida(nombre: str, correo: str):
         <p>Ya puedes usar la plataforma para registrar tus incidencias.</p>
     """
 
-    message = Mail(
-        from_email=EMAIL_FROM,
-        to_emails=correo,
-        subject=asunto,
-        html_content=html
-    )
+    url = "https://api.brevo.com/v3/smtp/email"
+    payload = {
+        "sender": {"email": EMAIL_FROM},
+        "to": [{"email": correo}],
+        "subject": asunto,
+        "htmlContent": html,
+    }
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "api-key": BREVO_API_KEY,
+    }
 
     try:
-        sg = SendGridAPIClient(SENDGRID_API_KEY)
-        response = sg.send(message)
-        print("Correo de bienvenida enviado. Status:", response.status_code)
+        resp = requests.post(url, json=payload, headers=headers, timeout=10)
+        print("Correo de bienvenida enviado. Status:", resp.status_code, "Body:", resp.text)
     except Exception as e:
-        # No queremos romper la creación de usuario por un fallo de email
         print("Error al enviar correo de bienvenida:", repr(e))
-# -------------------------------------------------------
-
 
 def lambda_handler(event, context):
     body = {}
@@ -132,10 +131,8 @@ def lambda_handler(event, context):
 
     usuarios_table.put_item(Item=item)
 
-    # --- NUEVO: enviar correo de bienvenida ---
     enviar_correo_bienvenida(nombre=nombre, correo=correo)
-    # ------------------------------------------
-
+    
     respuesta = {
         "message": "Usuario creado correctamente",
         "usuario": {

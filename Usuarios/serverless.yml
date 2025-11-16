@@ -12,7 +12,7 @@ provider:
     TABLE_EMPLEADOS: ${env:TABLE_EMPLEADOS, 'TABLE_EMPLEADOS'}
     JWT_SECRET: ${env:JWT_SECRET, 'clave-secreta-super-segura-cambiar-en-produccion'}
     JWT_EXPIRATION_HOURS: ${env:JWT_EXPIRATION_HOURS, '24'}
-    SENDGRID_API_KEY: ${env:EMAIL_API_KEY}
+    BREVO_API_KEY: ${env:BREVO_API_KEY}
     EMAIL_FROM: ${env:EMAIL_FROM}
   iam:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
