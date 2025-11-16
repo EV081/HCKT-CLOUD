@@ -6,9 +6,6 @@
 boto3>=1.35.0
 botocore>=1.35.0
 
-# Validación de datos
-jsonschema>=4.23.0
-
 # JWT para autenticación
 PyJWT>=2.9.0
 
