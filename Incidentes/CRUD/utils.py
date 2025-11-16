@@ -3,9 +3,9 @@ import os
 from datetime import datetime, timedelta
 
 # Solo necesitamos JWT_SECRET, no tablas de DynamoDB
-JWT_SECRET = os.getenv("JWT_SECRET", "sera_que_y@r1tz@_me_hace_caso")
+JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = "HS256"
-JWT_EXPIRATION_HOURS = int(os.getenv("JWT_EXPIRATION_HOURS", "24"))
+JWT_EXPIRATION_HOURS = int(os.getenv("JWT_EXPIRATION_HOURS"))
 
 
 def validar_token(token):
