@@ -6,20 +6,10 @@ org: ${env:ORG_NAME}
 app: alerta-utec-backend
 stage: dev
 
-# Usar archivo local para el estado
-state:
-  file: .serverless/state.json
-
 services:
   # Capa compartida con dependencias Python
   dependencias:
     path: Dependencias
-
-  # Infraestructura: Crear tablas y bucket
-  infraestructura:
-    path: DataGenerator
-    dependsOn:
-      - dependencias
 
   # Microservicio de gestión de usuarios
   usuarios:
