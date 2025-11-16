@@ -1,0 +1,34 @@
+service: alerta-utec-incidentes
+
+provider:
+  name: aws
+  runtime: python3.13
+  region: ${opt:region, env:AWS_REGION, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  memorySize: 256
+  timeout: 30
+  iam:
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
+  environment:
+    TABLE_LOGS: ${env:TABLE_LOGS}
+    JWT_SECRET: ${env:JWT_SECRET}
+    JWT_EXPIRATION_HOURS: ${env:JWT_EXPIRATION_HOURS}
+  layers:
+    - ${cf:alerta-utec-dependencias-dev.PythonDependenciesLayerExport}
+
+functions:
+  ListLogs:
+    handler: list_logs.lambda_handler
+    description: Lista logs con paginación
+    events:
+      - http:
+          method: post
+          path: logs/listar
+          cors: true
+
+resources:
+  Outputs:
+    LogsApiUrl:
+      Value: !Sub https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}
+      Export:
+        Name: ${self:service}-ApiUrl

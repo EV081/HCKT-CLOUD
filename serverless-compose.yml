@@ -45,3 +45,11 @@ services:
       - usuarios
       - incidentes
 
+  # Microservicio de Logs
+  notificaciones:
+    path: Logs
+    dependsOn:
+      - dependencias
+      - usuarios
+      - incidentes
+
