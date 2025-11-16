@@ -262,13 +262,16 @@ def generar_conexiones(usuarios, cantidad=None):
     cantidad = max(1, cantidad or CONEXIONES_TOTAL)
     
     for i in range(cantidad):
-        fecha_conexion = datetime.now() - timedelta(minutes=random.randint(0, 120))
-        expiracion_ttl = int((fecha_conexion + timedelta(hours=2)).timestamp())
+        created_at = datetime.now() - timedelta(minutes=random.randint(0, 120))
+        expiracion_ttl = int((created_at + timedelta(hours=4)).timestamp())
+        
+        usuario = random.choice(usuarios)
         
         conexion = {
             "conexion_id": str(uuid.uuid4()),
-            "usuario_correo": random.choice(usuarios)["correo"],
-            "fecha_conexion": fecha_conexion.isoformat(),
+            "usuario_correo": usuario["correo"],
+            "rol": usuario.get("rol", "estudiante"),
+            "created_at": created_at.isoformat(),
             "expiracion_ttl": expiracion_ttl
         }
         conexiones.append(conexion)

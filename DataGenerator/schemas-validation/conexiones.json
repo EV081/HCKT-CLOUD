@@ -13,7 +13,12 @@
       "format": "email"
     },
 
-    "fecha_conexion": {
+    "rol": {
+      "type": "string",
+      "enum": ["estudiante", "personal_administrativo", "autoridad"]
+    },
+
+    "created_at": {
       "type": "string",
       "format": "date-time"
     },
@@ -26,7 +31,7 @@
   "required": [
     "conexion_id",
     "usuario_correo",
-    "fecha_conexion",
+    "created_at",
     "expiracion_ttl"
   ],
 
