@@ -1,215 +1,177 @@
+import json
+import os
+import time
+from datetime import datetime
+from decimal import Decimal
+
+import boto3
 from airflow import DAG
 from airflow.decorators import task
-from airflow.hooks.base import BaseHook
-from datetime import datetime
-import json
-from decimal import Decimal
-import boto3
-import time
 
-# ====== CONFIGURACIÓN BÁSICA ======
-DYNAMO_TABLES = ["tabla_1", "tabla_2", "tabla_3"]  # <-- pon aquí tus tablas reales
-S3_BUCKET_EXPORT = "mi-bucket-destino"             # <-- bucket donde guardarás los JSON
-S3_PREFIX_BASE = "dynamo_export"                   # prefijo base en S3
-GLUE_CRAWLER_NAME = "crawler_dynamo"               # <-- tu crawler de Glue
-GLUE_DATABASE = "mi_db"                            # <-- tu Glue/Athena DB
-ATHENA_OUTPUT = "s3://mi-bucket-athena-results/dynamo_export/"  # <-- output de Athena
-AWS_REGION = "us-east-1"                           # <-- ajusta tu región
+DEFAULT_ARGS = {
+    "owner": "analitica",
+    "retries": 1,
+    "retry_delay": None,
+}
 
-# ====== DEFINICIÓN DEL DAG ======
-dag = DAG(
-    "etl_dynamodb_a_s3_glue_athena",
-    description="ETL de 3 tablas DynamoDB a S3 (JSON) -> Glue -> Athena",
-    schedule_interval="@once",   # o @daily si quieres que corra todos los días
+S3_PREFIX = "analitica/ingesta"
+DEFAULT_GLUE_ROLE_NAME = "GlueCrawlerRole"
+
+def _decimal_default(obj):
+    if isinstance(obj, Decimal):
+        return float(obj) if obj % 1 else int(obj)
+    raise TypeError(f"No serializable type: {type(obj)}")
+
+def _parse_table_mapping(raw_value: str):
+    mapping = {}
+    for pair in raw_value.split(","):
+        if "=" not in pair:
+            continue
+        logical, physical = pair.split("=", 1)
+        logical = logical.strip()
+        physical = physical.strip()
+        if logical and physical:
+            mapping[logical] = physical
+    if not mapping:
+        raise ValueError("ANALITICA_TABLES no contiene pares válidos clave=tabla")
+    return mapping
+
+with DAG(
+    DAG_ID := "etl_dynamodb_a_glue_athena",
+    description="Ingesta de DynamoDB a S3 con Glue y Athena",
+    schedule_interval="@daily",
     start_date=datetime(2024, 1, 1),
     catchup=False,
-)
+    default_args=DEFAULT_ARGS,
+    tags=["analitica", "ingesta"],
+) as dag:
 
-# ====== HELPERS PARA CREDENCIALES Y JSON ======
+    @task()
+    def load_config():
+        tables_raw = os.environ.get("ANALITICA_TABLES")
+        if not tables_raw:
+            raise ValueError("Definir ANALITICA_TABLES en el entorno (formato clave=tabla,...).")
+        account_id = os.environ.get("AWS_ACCOUNT_ID")
+        if not account_id:
+            raise ValueError("AWS_ACCOUNT_ID no está definido en el entorno.")
+        glue_role_name = os.environ.get("ANALITICA_GLUE_ROLE_NAME", DEFAULT_GLUE_ROLE_NAME)
+        glue_role_arn = f"arn:aws:iam::{account_id}:role/{glue_role_name}"
+        config = {
+            "tables": _parse_table_mapping(tables_raw),
+            "bucket": os.environ["ANALITICA_S3_BUCKET"],
+            "prefix": S3_PREFIX,
+            "glue_database": os.environ["ANALITICA_GLUE_DATABASE"],
+            "glue_crawler": os.environ["ANALITICA_GLUE_CRAWLER"],
+            "glue_role": glue_role_arn,
+            "region": os.environ.get("AWS_REGION", "us-east-1"),
+        }
+        return config
 
-def get_aws_credentials():
-    conn = BaseHook.get_connection("aws_credentials")
-    aws_credentials = {
-        "access_key": conn.login,
-        "secret_access_key": conn.password,
-        "session_token": conn.extra_dejson.get("aws_session_token"),
-        "region_name": conn.extra_dejson.get("region_name", AWS_REGION),
-    }
-    return aws_credentials
+    @task()
+    def ensure_bucket(cfg):
+        s3 = boto3.client("s3", region_name=cfg["region"])
+        bucket = cfg["bucket"]
+        try:
+            s3.head_bucket(Bucket=bucket)
+        except Exception:
+            create_args = {"Bucket": bucket}
+            if cfg["region"] != "us-east-1":
+                create_args["CreateBucketConfiguration"] = {"LocationConstraint": cfg["region"]}
+            s3.create_bucket(**create_args)
+        return bucket
 
-def decimal_default(obj):
-    """Convertir Decimal de DynamoDB a float para JSON."""
-    if isinstance(obj, Decimal):
-        return float(obj)
-    raise TypeError
+    @task()
+    def export_tables(cfg):
+        dynamodb = boto3.resource("dynamodb", region_name=cfg["region"])
+        s3 = boto3.client("s3", region_name=cfg["region"])
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+        results = []
 
-def upload_json_lines(s3_client, bucket, key_prefix, table_name, part, items):
-    # JSON Lines: un objeto JSON por línea
-    lines = [json.dumps(item, default=decimal_default) for item in items]
-    body = "\n".join(lines)
+        for logical_name, table_name in cfg["tables"].items():
+            table = dynamodb.Table(table_name)
+            items = []
+            last_evaluated_key = None
 
-    key = f"{key_prefix}part-{part:04d}.json"
-    s3_client.put_object(
-        Bucket=bucket,
-        Key=key,
-        Body=body.encode("utf-8"),
-        ContentType="application/json",
-    )
-    print(f"Subido {len(items)} registros de {table_name} a s3://{bucket}/{key}")
+            while True:
+                scan_kwargs = {}
+                if last_evaluated_key:
+                    scan_kwargs["ExclusiveStartKey"] = last_evaluated_key
+                response = table.scan(**scan_kwargs)
+                items.extend(response.get("Items", []))
+                last_evaluated_key = response.get("LastEvaluatedKey")
+                if not last_evaluated_key:
+                    break
 
-# ====== TASK 1: Exportar las 3 tablas DynamoDB a S3 en JSON ======
+            key = f"{cfg['prefix']}/{logical_name}/{logical_name}.json"
+            body = json.dumps(items, default=_decimal_default, ensure_ascii=False)
+            s3.put_object(
+                Bucket=cfg["bucket"],
+                Key=key,
+                Body=body.encode("utf-8"),
+                ContentType="application/json",
+            )
 
-@task(dag=dag)
-def export_dynamodb_to_s3(execution_date: str = "{{ ds }}"):
-    """
-    Hace scan a cada tabla de DynamoDB y la sube a S3 como JSON Lines:
-    s3://BUCKET/dynamo_export/<tabla>/fecha=YYYY-MM-DD/part-0001.json
-    """
-    aws_credentials = get_aws_credentials()
+            results.append({
+                "logical": logical_name,
+                "table": table_name,
+                "records": len(items),
+                "s3_key": key,
+            })
 
-    session = boto3.Session(
-        aws_access_key_id=aws_credentials["access_key"],
-        aws_secret_access_key=aws_credentials["secret_access_key"],
-        aws_session_token=aws_credentials["session_token"],
-        region_name=aws_credentials["region_name"],
-    )
+        return {"timestamp": timestamp, "exports": results}
 
-    dynamodb = session.resource("dynamodb")
-    s3 = session.client("s3")
+    @task()
+    def ensure_glue_database(cfg):
+        glue = boto3.client("glue", region_name=cfg["region"])
+        try:
+            glue.get_database(Name=cfg["glue_database"])
+        except glue.exceptions.EntityNotFoundException:
+            glue.create_database(
+                DatabaseInput={
+                    "Name": cfg["glue_database"],
+                    "Description": "Datos ingeridos desde DynamoDB para analítica.",
+                }
+            )
+        return cfg["glue_database"]
 
-    for table_name in DYNAMO_TABLES:
-        print(f"Exportando tabla DynamoDB: {table_name}")
-        table = dynamodb.Table(table_name)
+    @task()
+    def ensure_glue_crawler(cfg):
+        glue = boto3.client("glue", region_name=cfg["region"])
+        s3_target = f"s3://{cfg['bucket']}/{cfg['prefix']}"
+        crawler_name = cfg["glue_crawler"]
+        crawler_args = {
+            "Name": crawler_name,
+            "Role": cfg["glue_role"],
+            "DatabaseName": cfg["glue_database"],
+            "Targets": {"S3Targets": [{"Path": s3_target}]},
+            "Description": "Crawler para datos ingeridos desde DynamoDB.",
+        }
+        try:
+            glue.get_crawler(Name=crawler_name)
+            glue.update_crawler(**crawler_args)
+        except glue.exceptions.EntityNotFoundException:
+            glue.create_crawler(**crawler_args)
+        return crawler_name
 
-        date_str = execution_date  # p.ej. 2024-01-01
-        key_prefix = f"{S3_PREFIX_BASE}/{table_name}/fecha={date_str}/"
-
-        items = []
-        last_evaluated_key = None
-        part = 1
+    @task()
+    def run_glue_crawler(cfg, crawl_name: str):
+        glue = boto3.client("glue", region_name=cfg["region"])
+        glue.start_crawler(Name=crawl_name)
 
         while True:
-            scan_kwargs = {}
-            if last_evaluated_key:
-                scan_kwargs["ExclusiveStartKey"] = last_evaluated_key
-
-            response = table.scan(**scan_kwargs)
-            batch_items = response.get("Items", [])
-
-            if not batch_items:
+            details = glue.get_crawler(Name=crawl_name)
+            state = details["Crawler"]["State"]
+            if state == "READY":
                 break
+            time.sleep(15)
 
-            items.extend(batch_items)
+        return {"crawler": crawl_name, "status": "SUCCEEDED"}
 
-            # Cada 10k registros subimos un archivo para no petar memoria
-            if len(items) >= 10000:
-                upload_json_lines(s3, S3_BUCKET_EXPORT, key_prefix, table_name, part, items)
-                part += 1
-                items = []
+    configuration = load_config()
+    bucket_ready = ensure_bucket(configuration)
+    exports = export_tables(configuration)
+    database = ensure_glue_database(configuration)
+    crawler_name = ensure_glue_crawler(configuration)
+    crawler_run = run_glue_crawler(configuration, crawler_name)
 
-            last_evaluated_key = response.get("LastEvaluatedKey")
-            if not last_evaluated_key:
-                break
-
-        # Subir lo que falte
-        if items:
-            upload_json_lines(s3, S3_BUCKET_EXPORT, key_prefix, table_name, part, items)
-
-    print("Exportación de todas las tablas DynamoDB completada.")
-
-# ====== TASK 2: Ejecutar Glue Crawler ======
-
-@task(dag=dag)
-def run_glue_crawler():
-    """
-    Lanza el Glue Crawler y espera a que termine.
-    """
-    aws_credentials = get_aws_credentials()
-
-    session = boto3.Session(
-        aws_access_key_id=aws_credentials["access_key"],
-        aws_secret_access_key=aws_credentials["secret_access_key"],
-        aws_session_token=aws_credentials["session_token"],
-        region_name=aws_credentials["region_name"],
-    )
-
-    glue = session.client("glue")
-
-    print(f"Iniciando Glue Crawler: {GLUE_CRAWLER_NAME}")
-    glue.start_crawler(Name=GLUE_CRAWLER_NAME)
-
-    # Esperar a que el crawler termine (polling simple)
-    while True:
-        response = glue.get_crawler(Name=GLUE_CRAWLER_NAME)
-        state = response["Crawler"]["State"]
-        print(f"Estado del crawler: {state}")
-        if state == "READY":
-            break
-        time.sleep(30)
-
-    print("Glue Crawler finalizado.")
-
-# ====== TASK 3: Ejecutar query de validación en Athena ======
-
-@task(dag=dag)
-def run_athena_validation(execution_date: str = "{{ ds }}"):
-    """
-    Ejecuta una query de ejemplo en Athena para validar que se vean las 3 tablas.
-    """
-    aws_credentials = get_aws_credentials()
-
-    session = boto3.Session(
-        aws_access_key_id=aws_credentials["access_key"],
-        aws_secret_access_key=aws_credentials["secret_access_key"],
-        aws_session_token=aws_credentials["session_token"],
-        region_name=aws_credentials["region_name"],
-    )
-
-    athena = session.client("athena")
-
-    query = f"""
-        SELECT 'tabla_1' AS tabla, count(*) AS registros
-        FROM {GLUE_DATABASE}.tabla_1
-        WHERE fecha = date '{execution_date}'
-        UNION ALL
-        SELECT 'tabla_2', count(*)
-        FROM {GLUE_DATABASE}.tabla_2
-        WHERE fecha = date '{execution_date}'
-        UNION ALL
-        SELECT 'tabla_3', count(*)
-        FROM {GLUE_DATABASE}.tabla_3
-        WHERE fecha = date '{execution_date}';
-    """
-
-    print("Ejecutando query de validación en Athena:")
-    print(query)
-
-    response = athena.start_query_execution(
-        QueryString=query,
-        QueryExecutionContext={"Database": GLUE_DATABASE},
-        ResultConfiguration={"OutputLocation": ATHENA_OUTPUT},
-    )
-
-    query_execution_id = response["QueryExecutionId"]
-    print(f"QueryExecutionId: {query_execution_id}")
-
-    # (Opcional) Esperar a que termine y logear estado
-    while True:
-        res = athena.get_query_execution(QueryExecutionId=query_execution_id)
-        state = res["QueryExecution"]["Status"]["State"]
-        print(f"Estado de la query Athena: {state}")
-        if state in ("SUCCEEDED", "FAILED", "CANCELLED"):
-            break
-        time.sleep(10)
-
-    if state != "SUCCEEDED":
-        raise Exception(f"La query de Athena terminó en estado: {state}")
-
-    print("Query de Athena finalizada correctamente.")
-
-# ====== DEPENDENCIAS ======
-export_task = export_dynamodb_to_s3()
-crawler_task = run_glue_crawler()
-athena_task = run_athena_validation()
-
-export_task >> crawler_task >> athena_task
+    bucket_ready >> exports >> database >> crawler_name >> crawler_run

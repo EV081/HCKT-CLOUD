@@ -12,13 +12,148 @@ provider:
     TABLE_INCIDENTES: ${env:TABLE_INCIDENTES}
     TABLE_LOGS: ${env:TABLE_LOGS}
     TABLE_EMPLEADOS: ${env:TABLE_EMPLEADOS}
-  
   layers:
     - ${cf:alerta-utec-dependencias-dev.PythonDependenciesLayerExport}
 
-functions:
-  # TODO: Implementar funciones Lambda
-  placeholder:
-    handler: handler.placeholder
-    description: Función placeholder hasta implementar el microservicio
+functions: {}
+
+resources:
+  Resources:
+    AnaliticaAirflowLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /ecs/alerta-utec-airflow
+        RetentionInDays: 14
+
+    AnaliticaAirflowCluster:
+      Type: AWS::ECS::Cluster
+      Properties:
+        ClusterName: alerta-utec-analitica-cluster
+
+    AnaliticaAirflowSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Acceso saliente para Airflow
+        VpcId: ${env:ANALITICA_VPC_ID}
+        SecurityGroupEgress:
+          - IpProtocol: "-1"
+            CidrIp: 0.0.0.0/0
+
+    AnaliticaAirflowTaskExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: alerta-utec-analitica-ecs-execution
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: ecs-tasks.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+    AnaliticaAirflowTaskRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: alerta-utec-analitica-ecs-task
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: ecs-tasks.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: alerta-utec-analitica-ingesta
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - dynamodb:Scan
+                    - dynamodb:DescribeTable
+                  Resource: arn:aws:dynamodb:${env:AWS_REGION, 'us-east-1'}:${env:AWS_ACCOUNT_ID}:table/*
+                - Effect: Allow
+                  Action:
+                    - s3:ListBucket
+                  Resource: arn:aws:s3:::${env:ANALITICA_S3_BUCKET}
+                - Effect: Allow
+                  Action:
+                    - s3:PutObject
+                    - s3:GetObject
+                    - s3:DeleteObject
+                  Resource: arn:aws:s3:::${env:ANALITICA_S3_BUCKET}/*
+                - Effect: Allow
+                  Action:
+                    - glue:GetCrawler
+                    - glue:CreateCrawler
+                    - glue:UpdateCrawler
+                    - glue:StartCrawler
+                    - glue:GetDatabase
+                    - glue:CreateDatabase
+                  Resource: "*"
+
+    AnaliticaAirflowTaskDefinition:
+      Type: AWS::ECS::TaskDefinition
+      Properties:
+        Family: alerta-utec-analitica-airflow
+        Cpu: "1024"
+        Memory: "2048"
+        NetworkMode: awsvpc
+        RequiresCompatibilities:
+          - FARGATE
+        ExecutionRoleArn: !GetAtt AnaliticaAirflowTaskExecutionRole.Arn
+        TaskRoleArn: !GetAtt AnaliticaAirflowTaskRole.Arn
+        ContainerDefinitions:
+          - Name: airflow
+            Image: ${env:ANALITICA_AIRFLOW_IMAGE}
+            Essential: true
+            PortMappings:
+              - ContainerPort: 8080
+            LogConfiguration:
+              LogDriver: awslogs
+              Options:
+                awslogs-group: /ecs/alerta-utec-airflow
+                awslogs-region: ${env:AWS_REGION, 'us-east-1'}
+                awslogs-stream-prefix: airflow
+            Environment:
+              - Name: AWS_REGION
+                Value: ${env:AWS_REGION, 'us-east-1'}
+              - Name: ANALITICA_TABLES
+                Value: ${env:ANALITICA_TABLES}
+              - Name: ANALITICA_S3_BUCKET
+                Value: ${env:ANALITICA_S3_BUCKET}
+              - Name: ANALITICA_S3_PREFIX
+                Value: ${env:ANALITICA_S3_PREFIX, 'analitica/raw'}
+              - Name: ANALITICA_GLUE_DATABASE
+                Value: ${env:ANALITICA_GLUE_DATABASE}
+              - Name: ANALITICA_GLUE_CRAWLER
+                Value: ${env:ANALITICA_GLUE_CRAWLER}
+              - Name: ANALITICA_GLUE_ROLE_ARN
+                Value: ${env:ANALITICA_GLUE_ROLE_ARN}
+
+    AnaliticaAirflowService:
+      Type: AWS::ECS::Service
+      Properties:
+        ServiceName: alerta-utec-analitica-airflow
+        Cluster: !Ref AnaliticaAirflowCluster
+        LaunchType: FARGATE
+        DesiredCount: 1
+        TaskDefinition: !Ref AnaliticaAirflowTaskDefinition
+        NetworkConfiguration:
+          AwsvpcConfiguration:
+            AssignPublicIp: true
+            Subnets:
+              Fn::Split:
+                - ","
+                - ${env:ANALITICA_SUBNETS}
+            SecurityGroups:
+              - !Ref AnaliticaAirflowSecurityGroup
+
+  Outputs:
+    AnaliticaAirflowServiceName:
+      Value: !Ref AnaliticaAirflowService
+      Export:
+        Name: alerta-utec-analitica-airflow-service
 
