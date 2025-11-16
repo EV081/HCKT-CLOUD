@@ -1,0 +1,63 @@
+service: service-report
+
+provider:
+  name: aws
+  runtime: python3.13
+  region: us-east-1
+  stage: ${opt:stage, 'dev'} 
+  memorySize: 256
+  timeout: 20
+  iam:
+    role: arn:aws:iam::468251834706:role/LabRole
+  environment:
+    TABLE_INCIDENTES: t_report
+    INCIDENTES_BUCKET: report-evidencia
+  httpApi:
+    cors: true
+
+functions:
+  CreateReport:
+    handler: create_report.lambda_handler
+    events:
+      - httpApi:
+          method: POST
+          path: /report/create
+          cors: true
+          integration: lambda
+    
+  UpdateReportUsers: 
+    handler: update_report_users.lambda_handler
+    events:
+      - httpApi:
+          method: PUT
+          path: /report/update_users
+          cors: true
+          integration: lambda  
+
+  UpdateReportAdmin: 
+    handler: update_report_admin.lambda_handler
+    events:
+      - httpApi:
+          method: PUT
+          path: /report/update_admin
+          cors: true
+          integration: lambda            
+
+  SearchReport:
+    handler: search_report.lambda_handler
+    events:
+      - httpApi:
+          method: POST 
+          path: /report/search
+          cors: true
+          integration: lambda
+
+  ListReport:
+    handler: report_list.lambda_handler
+    events:
+      - httpApi:
+          method: POST
+          path: /report/list
+          cors: true
+          integration: lambda
+          

@@ -24,7 +24,7 @@
 
     "tipo": {
       "type": "string",
-      "enum": ["seguridad", "mantenimiento", "otro"]
+      "enum": ["limpieza", "seguridad", "mantenimiento", "otro"]
     },
 
     "nivel_urgencia": {
