@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     
     usuario_autenticado = {
         "correo": resultado_validacion.get("correo"),
-        "role": resultado_validacion.get("role")
+        "rol": resultado_validacion.get("rol")
     }
     
     incidente_id = event.get('pathParameters', {}).get('incidente_id')
@@ -37,7 +37,7 @@ def lambda_handler(event, context):
     body = json.loads(event.get('body', '{}'))
     
 
-    if usuario_autenticado["role"] == "Admin":
+    if usuario_autenticado["rol"] == "personal_administrativo":
         if "estado" not in body or body["estado"] not in ESTADO_ENUM:
             return {
                 "statusCode": 400,
