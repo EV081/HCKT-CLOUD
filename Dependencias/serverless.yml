@@ -2,7 +2,7 @@ service: alerta-utec-dependencias
 
 provider:
   name: aws
-  runtime: python3.12
+  runtime: python3.10
   region: us-east-1
   iam:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
@@ -13,8 +13,7 @@ layers:
     name: ${self:provider.stage, 'dev'}-alerta-utec-python-dependencies
     description: Capa compartida con dependencias Python para todos los microservicios
     compatibleRuntimes:
-      - python3.12
-      - python3.11
+      - python3.10
     retain: false
 
 resources:

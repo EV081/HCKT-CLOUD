@@ -2,7 +2,7 @@ service: alerta-utec-analitica
 
 provider:
   name: aws
-  runtime: python3.13
+  runtime: python3.10
   region: us-east-1
   memorySize: 512
   timeout: 60

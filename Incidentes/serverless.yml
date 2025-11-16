@@ -2,7 +2,7 @@ service: alerta-utec-incidentes
 
 provider:
   name: aws
-  runtime: python3.12
+  runtime: python3.10
   region: ${opt:region, env:AWS_REGION, 'us-east-1'}
   stage: ${opt:stage, 'dev'}
   memorySize: 256
