@@ -23,7 +23,7 @@ provider:
 
 functions:
   CreateIncidente:
-    handler: handler.crear_incidente
+    handler: CRUD/create_report.lambda_handler
     description: Crea un nuevo incidente
     events:
       - httpApi:
@@ -32,7 +32,7 @@ functions:
           cors: true
     
   UpdateIncidenteUsuario: 
-    handler: handler.actualizar_incidente_usuario
+    handler: CRUD/update_report_users.lambda_handler
     description: Actualiza un incidente (usuario)
     events:
       - httpApi:
@@ -41,7 +41,7 @@ functions:
           cors: true
 
   UpdateIncidenteAdmin: 
-    handler: handler.actualizar_incidente_admin
+    handler: CRUD/update_report_admin.lambda_handler
     description: Actualiza el estado de un incidente (admin)
     events:
       - httpApi:
@@ -50,7 +50,7 @@ functions:
           cors: true
 
   SearchIncidente:
-    handler: handler.buscar_incidente
+    handler: CRUD/search_report.lambda_handler
     description: Busca un incidente por ID
     events:
       - httpApi:
@@ -59,7 +59,7 @@ functions:
           cors: true
 
   ListIncidentes:
-    handler: handler.listar_incidentes
+    handler: CRUD/list_report.lambda_handler
     description: Lista incidentes con paginación
     events:
       - httpApi:
