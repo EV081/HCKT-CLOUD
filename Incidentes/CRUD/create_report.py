@@ -3,8 +3,8 @@ import json
 import uuid
 import base64
 import boto3
-from datetime import datetime
-from reportes.utils import validar_token
+from datetime import datetime, timezone
+from CRUD.utils import validar_token
 from botocore.exceptions import ClientError
 
 dynamodb = boto3.resource('dynamodb')
@@ -43,8 +43,7 @@ def lambda_handler(event, context):
     body = json.loads(event.get('body', '{}'))
     
     required_fields = [
-        "titulo", "descripcion", "piso", "ubicacion", "tipo", "nivel_urgencia",
-        "estado", "usuario_correo", "created_at"
+        "titulo", "descripcion", "piso", "ubicacion", "tipo", "nivel_urgencia"
     ]
     
     for field in required_fields:
@@ -66,80 +65,80 @@ def lambda_handler(event, context):
             "body": json.dumps({"message": "Valor de 'nivel_urgencia' no válido"})
         }
     
-    if body["estado"] not in ESTADO_ENUM:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "Valor de 'estado' no válido"})
-        }
-    
     if body["piso"] not in PISO_RANGO:
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "Valor de 'piso' debe estar entre -2 y 11"})
         }
     
-    evidencia_url = None
-    if 'evidencias' in body and isinstance(body['evidencias'], list) and len(body['evidencias']) > 0:
-        for image_data in body['evidencias']:
-            image_url_or_key = None
-            if image_data:
-                try:
-                    key = image_data.get("key")
-                    file_b64 = image_data.get("file_base64")
-                    content_type = image_data.get("content_type")
-                    if not key:
-                        return {
-                            "statusCode": 400,
-                            "body": json.dumps({"message": "Falta 'key' en image"})
-                        }
-                    if not file_b64:
-                        return {
-                            "statusCode": 400,
-                            "body": json.dumps({"message": "'file_base64' es requerido"})
-                        }
-
-                    try:
-                        file_bytes = base64.b64decode(file_b64)
-                    except Exception as e:
-                        return {
-                            "statusCode": 400,
-                            "body": json.dumps({"message": f"file_base64 inválido: {e}"})
-                        }
-
-                    if INCIDENTES_BUCKET:
-                        s3.put_object(Bucket=INCIDENTES_BUCKET, Key=key, Body=file_bytes, ContentType=content_type)
-                        image_url_or_key = f"s3://{INCIDENTES_BUCKET}/{key}"
-                    else:
-                        return {
-                            "statusCode": 500,
-                            "body": json.dumps({"error": "INCIDENTES_BUCKET no configurado"})
-                        }
-                    
-                    evidencia_url = image_url_or_key
-
-                except ClientError as e:
-                    code = e.response.get("Error", {}).get("Code")
-                    if code == "AccessDenied":
-                        return {
-                            "statusCode": 403,
-                            "body": json.dumps({"error": "Acceso denegado al bucket"})
-                        }
-                    if code == "NoSuchBucket":
-                        return {
-                            "statusCode": 400,
-                            "body": json.dumps({"error": f"El bucket {INCIDENTES_BUCKET} no existe"})
-                        }
-                    return {
-                        "statusCode": 400,
-                        "body": json.dumps({"error": f"Error S3: {e}"})
-                    }
-                except Exception as e:
-                    return {
-                        "statusCode": 500,
-                        "body": json.dumps({"error": f"Error interno al subir la imagen: {e}"})
-                    }
-    
     incidente_id = str(uuid.uuid4())
+
+    created_at = datetime.now(timezone.utc).isoformat()
+    
+    evidencia_url = None
+    
+    if 'evidencias' in body and body['evidencias'] is not None:
+        image_data = body['evidencias']
+        
+        if not isinstance(image_data, dict):
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "'evidencias' debe ser un objeto con 'file_base64'"})
+            }
+        
+        file_b64 = image_data.get("file_base64")
+        if not file_b64:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "'file_base64' es requerido en 'evidencias'"})
+            }
+        
+        try:
+            file_bytes = base64.b64decode(file_b64)
+        except Exception as e:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": f"file_base64 inválido: {e}"})
+            }
+        
+        if not INCIDENTES_BUCKET:
+            return {
+                "statusCode": 500,
+                "body": json.dumps({"error": "INCIDENTES_BUCKET no configurado"})
+            }
+        
+        key = f"evidencia_{incidente_id}"
+        content_type = "image/png"
+        
+        try:
+            s3.put_object(
+                Bucket=INCIDENTES_BUCKET,
+                Key=key,
+                Body=file_bytes,
+                ContentType=content_type
+            )
+            evidencia_url = f"s3://{INCIDENTES_BUCKET}/{key}"
+        except ClientError as e:
+            code = e.response.get("Error", {}).get("Code")
+            if code == "AccessDenied":
+                return {
+                    "statusCode": 403,
+                    "body": json.dumps({"error": "Acceso denegado al bucket"})
+                }
+            if code == "NoSuchBucket":
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps({"error": f"El bucket {INCIDENTES_BUCKET} no existe"})
+                }
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": f"Error S3: {e}"})
+            }
+        except Exception as e:
+            return {
+                "statusCode": 500,
+                "body": json.dumps({"error": f"Error interno al subir la imagen: {e}"})
+            }
     
     incidente = {
         "incidente_id": incidente_id,
@@ -149,15 +148,15 @@ def lambda_handler(event, context):
         "ubicacion": body["ubicacion"],
         "tipo": body["tipo"],
         "nivel_urgencia": body["nivel_urgencia"],
-        "evidencias": evidencia_url if evidencia_url else body.get("evidencias", []),
-        "estado": "reportado",
+        "evidencias": [evidencia_url] if evidencia_url else [],
+        "estado": "en_progreso",
         "usuario_correo": usuario_autenticado["correo"],
-        "created_at": body["created_at"],
-        "updated_at": body.get("updated_at", body["created_at"])
+        "created_at": created_at,
+        "updated_at": created_at
     }
     
     try:
-        incidente_response = incidentes_table.put_item(Item=incidente)
+        incidentes_table.put_item(Item=incidente)
         return {
             "statusCode": 201,
             "body": json.dumps({
