@@ -10,26 +10,23 @@ stage: dev
 state:
   file: .serverless/state.json
 
+# Hook global: ejecutar antes de cualquier despliegue
+hooks:
+  before:deploy:
+    - echo "📊 Creando recursos de infraestructura y poblando datos..."
+    - cd DataGenerator && python3 DataPoblator.py && cd ..
+    - echo "✅ Recursos de infraestructura listos"
+
 services:
   # Capa compartida con dependencias Python
   dependencias:
     path: Dependencias
-
-  # Infraestructura: Tablas DynamoDB y S3
-  infraestructura:
-    path: DataGenerator
-    dependsOn:
-      - dependencias
 
   # Microservicio de gestión de usuarios
   usuarios:
     path: Usuarios
     dependsOn:
       - dependencias
-    hooks:
-      before:deploy:deploy:
-        - echo "📊 Creando recursos de infraestructura y poblando datos..."
-        - cd DataGenerator && python3 DataPoblator.py && cd ..
 
   # Microservicio de gestión de incidentes
   incidentes:
