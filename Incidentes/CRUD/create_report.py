@@ -178,7 +178,7 @@ def lambda_handler(event, context):
         "tipo": body["tipo"],
         "nivel_urgencia": body["nivel_urgencia"],
         "evidencias": [evidencia_url] if evidencia_url else [],
-        "estado": "en_progreso",
+        "estado": "reportado",
         "usuario_correo": usuario_autenticado["correo"],
         "created_at": created_at,
         "updated_at": created_at
