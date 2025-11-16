@@ -52,7 +52,7 @@ resources:
         TaskRoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/LabRole
         ContainerDefinitions:
           - Name: airflow
-            Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/alerta-utec-airflow:latest
+            Image: apache/airflow:2.9.2-python3.10
             Essential: true
             PortMappings:
               - ContainerPort: 8080
