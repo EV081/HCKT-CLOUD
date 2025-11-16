@@ -1,0 +1,62 @@
+service: alerta-utec-notificaciones
+
+provider:
+  name: aws
+  runtime: python3.12
+  region: ${opt:region, env:AWS_REGION, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  memorySize: 256
+  timeout: 30
+  iam:
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
+  environment:
+    TABLE_CONEXIONES: ${env:TABLE_CONEXIONES}
+    JWT_SECRET: ${env:JWT_SECRET}
+    JWT_EXPIRATION_HOURS: ${env:JWT_EXPIRATION_HOURS, '24'}
+    CONNECTION_TTL_HOURS: ${env:WEBSOCKET_CONNECTION_TTL_HOURS, '4'}
+    WEBSOCKET_API_ENDPOINT: !Sub https://${WebsocketsApi}.execute-api.${AWS::Region}.amazonaws.com/${sls:stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:Scan
+      Resource: arn:aws:dynamodb:${env:AWS_REGION, 'us-east-1'}:${env:AWS_ACCOUNT_ID}:table/${env:TABLE_CONEXIONES}
+    - Effect: Allow
+      Action:
+        - execute-api:ManageConnections
+      Resource: arn:aws:execute-api:${env:AWS_REGION, 'us-east-1'}:${env:AWS_ACCOUNT_ID}:*/${sls:stage}/POST/@connections/*
+  layers:
+    - ${cf:alerta-utec-dependencias-dev.PythonDependenciesLayerExport}
+
+package:
+  patterns:
+    - 'handlers/**'
+    - '!__pycache__/**'
+
+functions:
+  OnConnect:
+    handler: handlers/connect.lambda_handler
+    events:
+      - websocket:
+          route: $connect
+
+  OnDisconnect:
+    handler: handlers/disconnect.lambda_handler
+    events:
+      - websocket:
+          route: $disconnect
+
+  OnDefault:
+    handler: handlers/default.lambda_handler
+    events:
+      - websocket:
+          route: $default
+
+  NotifyIncidente:
+    handler: handlers/notify_incidente.lambda_handler
+    events:
+      - http:
+          path: notificaciones/incidente
+          method: post
+          cors: true

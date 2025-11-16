@@ -37,3 +37,11 @@ services:
       - dependencias
       - incidentes
 
+  # Microservicio de notificaciones WebSocket
+  notificaciones:
+    path: Notificaciones
+    dependsOn:
+      - dependencias
+      - usuarios
+      - incidentes
+
