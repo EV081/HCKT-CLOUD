@@ -1,7 +1,7 @@
 import json
 import boto3
 import os
-from Usuarios.functions.utils import verificar_rol
+from CRUD.utils import verificar_rol
 
 TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS", "TABLE_USUARIOS")
 

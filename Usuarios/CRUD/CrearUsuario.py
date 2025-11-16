@@ -3,7 +3,7 @@ import boto3
 import os
 import jwt
 import uuid
-from functions.utils import generar_token
+from CRUD.utils import generar_token
 
 TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS")
 

@@ -1,7 +1,7 @@
 import json
 import boto3
 import os
-from Usuarios.functions.utils import generar_token
+from CRUD.utils import generar_token
 
 TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS", "TABLE_USUARIOS")
 

@@ -26,14 +26,14 @@ package:
     - '!__pycache__/**'
     - '!*.pyc'
     - '!requirements.txt'
-    - 'functions/**'
+    - 'CRUD/**'
 
 functions:
   authorizer:
-    handler: functions/Authorizer.lambda_handler
+    handler: CRUD/Authorizer.lambda_handler
 
   crear:
-    handler: functions/CrearUsuario.lambda_handler
+    handler: CRUD/CrearUsuario.lambda_handler
     events:
       - http:
           path: usuario/crear
@@ -42,7 +42,7 @@ functions:
           # Sin authorizer - endpoint público
 
   login:
-    handler: functions/LoginUsuario.lambda_handler
+    handler: CRUD/LoginUsuario.lambda_handler
     events:
       - http:
           path: usuario/login
@@ -51,7 +51,7 @@ functions:
           # Sin authorizer - endpoint público
 
   obtenerMiInfo:
-    handler: functions/MiUsuario.lambda_handler
+    handler: CRUD/MiUsuario.lambda_handler
     events:
       - http:
           path: usuario/mi-info
@@ -64,7 +64,7 @@ functions:
             type: token
 
   modificar:
-    handler: functions/ModificarUsuario.lambda_handler
+    handler: CRUD/ModificarUsuario.lambda_handler
     events:
       - http:
           path: usuario/modificar
@@ -77,7 +77,7 @@ functions:
             type: token
 
   eliminar:
-    handler: functions/EliminarUsuario.lambda_handler
+    handler: CRUD/EliminarUsuario.lambda_handler
     events:
       - http:
           path: usuario/eliminar

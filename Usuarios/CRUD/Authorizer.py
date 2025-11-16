@@ -1,5 +1,5 @@
 import json
-from Usuarios.functions.utils import validar_token
+from CRUD.utils import validar_token
 
 def lambda_handler(event, context):
     """
