@@ -7,6 +7,7 @@ from CRUD.utils import validar_token
 from decimal import Decimal
 
 TABLE_INCIDENTES = os.environ.get("TABLE_INCIDENTES")
+CORS_HEADERS = { "Access-Control-Allow-Origin": "*" }
 
 def _convert_decimals(obj):
     """
@@ -27,6 +28,7 @@ def _resp(code, body):
     safe_body = _convert_decimals(body)
     return {
         "statusCode": code,
+        "headers": CORS_HEADERS,
         "body": json.dumps(safe_body, ensure_ascii=False)
     }
 

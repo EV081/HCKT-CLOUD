@@ -3,6 +3,7 @@ import boto3
 import os
 
 TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS", "TABLE_USUARIOS")
+CORS_HEADERS = {"Access-Control-Allow-Origin": "*"}
 
 dynamodb = boto3.resource("dynamodb")
 usuarios_table = dynamodb.Table(TABLE_USUARIOS_NAME)
@@ -58,6 +59,7 @@ def lambda_handler(event, context):
     ):
         return {
             "statusCode": 403,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "No puedes consultar el perfil de una autoridad"})
         }
 
@@ -65,6 +67,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
+        "headers": CORS_HEADERS,
         "body": json.dumps({
             "message": "Usuario encontrado",
             "usuario": usuario

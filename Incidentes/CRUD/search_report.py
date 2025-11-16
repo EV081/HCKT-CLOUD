@@ -6,6 +6,7 @@ from CRUD.utils import validar_token
 from botocore.exceptions import ClientError
 
 dynamodb = boto3.resource('dynamodb')
+CORS_HEADERS = { "Access-Control-Allow-Origin": "*" }
 table_name = os.environ.get('TABLE_INCIDENTES')
 incidentes_table = dynamodb.Table(table_name)
 
@@ -35,6 +36,7 @@ def lambda_handler(event, context):
     if not resultado_validacion.get("valido"):
         return {
             "statusCode": 401,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": resultado_validacion.get("error")})
         }
     
@@ -49,6 +51,7 @@ def lambda_handler(event, context):
     if not incidente_id:
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "Falta 'incidente_id' en la solicitud"})
         }
 
@@ -57,12 +60,14 @@ def lambda_handler(event, context):
         if 'Item' not in response:
             return {
                 "statusCode": 404,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "Incidente no encontrado"})
             }
         incidente = response['Item']
     except ClientError as e:
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": f"Error al obtener el incidente: {str(e)}"})
         }
 
@@ -77,11 +82,13 @@ def lambda_handler(event, context):
         if correo_propietario != correo_usuario:
             return {
                 "statusCode": 403,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "Acceso denegado: Solo puedes ver tu propio reporte"})
             }
     else:
         return {
             "statusCode": 403,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "No tienes permisos para ver incidentes"})
         }
 
@@ -89,6 +96,7 @@ def lambda_handler(event, context):
     
     return {
         "statusCode": 200,
+        "headers": CORS_HEADERS,
         "body": json.dumps({
             "message": "Incidente encontrado",
             "incidente": incidente_sin_decimals

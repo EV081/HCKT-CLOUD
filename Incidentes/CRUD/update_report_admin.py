@@ -16,6 +16,7 @@ incidentes_table = dynamodb.Table(table_name)
 logs_table_name = os.environ.get('TABLE_LOGS')
 logs_table = dynamodb.Table(logs_table_name) if logs_table_name else None
 
+CORS_HEADERS = { "Access-Control-Allow-Origin": "*" }
 ESTADO_ENUM = ["reportado", "en_progreso", "resuelto"]
 ADMIN_ESTADOS_PERMITIDOS = ["en_progreso", "resuelto"]
 
@@ -206,6 +207,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 401,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": resultado_validacion.get("error")})
         }
     
@@ -226,6 +228,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 403,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "Solo un administrador puede cambiar el estado del incidente"})
         }
 
@@ -241,6 +244,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "Falta 'incidente_id' en el body"})
         }
 
@@ -253,6 +257,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "Falta 'estado' en el body"})
         }
 
@@ -267,6 +272,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "El estado debe ser 'en_progreso' o 'resuelto' para Admin"})
         }
 
@@ -281,6 +287,7 @@ def lambda_handler(event, context):
             )
             return {
                 "statusCode": 404,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "Incidente no encontrado"})
             }
         
@@ -295,6 +302,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": f"Error al obtener el incidente: {str(e)}"})
         }
 
@@ -334,6 +342,7 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
+            "headers": CORS_HEADERS,
             "body": json.dumps({
                 "message": "Estado actualizado correctamente",
                 "incidente_id": incidente_id,
@@ -349,5 +358,6 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": f"Error al actualizar el incidente: {str(e)}"})
         }
