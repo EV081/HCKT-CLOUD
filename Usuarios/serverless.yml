@@ -9,6 +9,7 @@ provider:
   
   environment:
     TABLE_USUARIOS: ${env:TABLE_USUARIOS, 'TABLE_USUARIOS'}
+    TABLE_EMPLEADOS: ${env:TABLE_EMPLEADOS, 'TABLE_EMPLEADOS'}
     JWT_SECRET: ${env:JWT_SECRET, 'clave-secreta-super-segura-cambiar-en-produccion'}
     JWT_EXPIRATION_HOURS: ${env:JWT_EXPIRATION_HOURS, '24'}
 
@@ -116,6 +117,48 @@ functions:
       - http:
           path: usuario/eliminar
           method: delete
+          cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token
+
+  listarUsuarios:
+    handler: CRUD/ListarUsuarios.lambda_handler
+    name: alerta-utec-usuarios-${sls:stage}-ListarUsuarios
+    events:
+      - http:
+          path: usuario/listar
+          method: post
+          cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token
+
+  crearEmpleado:
+    handler: CRUD/CrearEmpleado.lambda_handler
+    name: alerta-utec-usuarios-${sls:stage}-CrearEmpleado
+    events:
+      - http:
+          path: empleados/crear
+          method: post
+          cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token
+
+  listarEmpleados:
+    handler: CRUD/ListarEmpleados.lambda_handler
+    name: alerta-utec-usuarios-${sls:stage}-ListarEmpleados
+    events:
+      - http:
+          path: empleados/listar
+          method: post
           cors: true
           authorizer:
             name: authorizer

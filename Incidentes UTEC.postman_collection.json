@@ -594,7 +594,185 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Modificar Estudiante (P.A.)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{ "key": "token", "value": "{{token_personal}}", "type": "string" }
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"correo\": \"{{correo_estudiante_gestionado}}\",\n  \"nombre\": \"Estudiante Actualizado\",\n  \"contrasena\": \"{{contrasena_estudiante_gestionado}}\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/usuario/modificar",
+							"host": ["{{baserUrl_usuarios}}"],
+							"path": ["usuario","modificar"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"P.A. actualiza estudiante\", function () { pm.response.to.have.status(200); });",
+									"const data = pm.response.json();",
+									"pm.test(\"Correo sin contraseña\", function () { pm.expect(data.usuario).to.not.have.property('contrasena'); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Listar Usuarios (Autoridad)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{ "key": "token", "value": "{{token_autoridad}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limit\": 5\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/usuario/listar",
+							"host": ["{{baserUrl_usuarios}}"],
+							"path": ["usuario","listar"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Autoridad lista usuarios\", function () { pm.response.to.have.status(200); });",
+									"const data = pm.response.json();",
+									"pm.test(\"Sin contraseñas\", function () { pm.expect(data.usuarios[0]).to.not.have.property('contrasena'); });",
+									"if (data.last_key) { pm.collectionVariables.set(\"usuarios_last_key\", data.last_key); }"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Listar Usuarios (P.A.)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{ "key": "token", "value": "{{token_personal}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limit\": 5,\n  \"last_key\": \"{{usuarios_last_key}}\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/usuario/listar",
+							"host": ["{{baserUrl_usuarios}}"],
+							"path": ["usuario","listar"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"P.A. lista usuarios\", function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Crear Empleado (P.A.)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{ "key": "token", "value": "{{token_personal}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Técnico Soporte\",\n  \"tipo_area\": \"ti\",\n  \"estado\": \"activo\",\n  \"contacto\": {\n    \"telefono\": \"+51 900000001\",\n    \"correo\": \"soporte.ti@utec.edu.pe\"\n  }\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/empleados/crear",
+							"host": ["{{baserUrl_usuarios}}"],
+							"path": ["empleados","crear"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Empleado creado\", function () { pm.response.to.have.status(201); });",
+									"const data = pm.response.json();",
+									"pm.collectionVariables.set(\"empleado_id\", data.empleado.empleado_id);"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Listar Empleados (P.A.)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{ "key": "token", "value": "{{token_personal}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limit\": 5\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/empleados/listar",
+							"host": ["{{baserUrl_usuarios}}"],
+							"path": ["empleados","listar"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Listado de empleados\", function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
 				}
+				"...existing code..."
 			]
 		},
 		{
@@ -1002,6 +1180,14 @@
 		},
 		{
 			"key": "contrasena_estudiante_gestionado",
+			"value": ""
+		},
+		{
+			"key": "usuarios_last_key",
+			"value": ""
+		},
+		{
+			"key": "empleado_id",
 			"value": ""
 		}
 	]
