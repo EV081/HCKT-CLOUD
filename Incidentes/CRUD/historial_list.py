@@ -39,9 +39,8 @@ def _safe_int(v, default):
         return int(v)
     except Exception:
         return default
-
+    
 def lambda_handler(event, context):
-    # ---- Auth ----
     headers = event.get("headers") or {}
     auth_header = headers.get("Authorization") or headers.get("authorization") or ""
     if auth_header.lower().startswith("bearer "):
@@ -58,6 +57,7 @@ def lambda_handler(event, context):
     }
 
     rol = usuario_autenticado["rol"]
+    correo_usuario = usuario_autenticado["correo"]
 
     if rol not in ["estudiante", "personal_administrativo", "autoridad"]:
         return _resp(403, {"error": "No tienes permisos para listar incidentes"})
@@ -71,18 +71,21 @@ def lambda_handler(event, context):
     if page < 0:
         page = 0
 
-    total = 0
-    count_args = {"Select": "COUNT"}
+    filter_expr = Attr("usuario_correo").eq(correo_usuario)
+
+    scan_kwargs = {"FilterExpression": filter_expr}
+    all_items = []
     lek = None
     while True:
         if lek:
-            count_args["ExclusiveStartKey"] = lek
-        rcount = table.scan(**count_args)
-        total += rcount.get("Count", 0)
-        lek = rcount.get("LastEvaluatedKey")
+            scan_kwargs["ExclusiveStartKey"] = lek
+        resp = table.scan(**scan_kwargs)
+        all_items.extend(resp.get("Items", []))
+        lek = resp.get("LastEvaluatedKey")
         if not lek:
             break
 
+    total = len(all_items)
     total_pages = math.ceil(total / size) if size > 0 else 0
 
     if total_pages and page >= total_pages:
@@ -94,59 +97,28 @@ def lambda_handler(event, context):
             "totalPages": total_pages,
         })
 
-    qargs = {"Limit": size}
-    lek = None
-    for _ in range(page):
-        if lek:
-            qargs["ExclusiveStartKey"] = lek
-        rskip = table.scan(**qargs)
-        lek = rskip.get("LastEvaluatedKey")
-        if not lek:
-            return _resp(200, {
-                "contents": [],
-                "page": page,
-                "size": size,
-                "totalElements": total,
-                "totalPages": total_pages,
-            })
+    start = page * size
+    end = start + size
+    items = all_items[start:end]
 
-    if lek:
-        qargs["ExclusiveStartKey"] = lek
-    rpage = table.scan(**qargs)
-    items = rpage.get("Items", [])
-
-    if rol == "estudiante":
-        items = [
-            {
-                "titulo": item.get("titulo"),
-                "piso": item.get("piso"),
-                "tipo": item.get("tipo"),
-                "nivel_urgencia": item.get("nivel_urgencia"),
-                "estado": item.get("estado"),
-                "created_at": item.get("created_at"),
-                "updated_at": item.get("updated_at"),
-            }
-            for item in items
-        ]
-    else:
-        items = [
-            {
-                "incidente_id": item.get("incidente_id"),
-                "titulo": item.get("titulo"),
-                "descripcion": item.get("descripcion"),
-                "piso": item.get("piso"),
-                "ubicacion": item.get("ubicacion"),
-                "tipo": item.get("tipo"),
-                "nivel_urgencia": item.get("nivel_urgencia"),
-                "evidencias": item.get("evidencias", []),
-                "estado": item.get("estado"),
-                "usuario_correo": item.get("usuario_correo"),
-                "created_at": item.get("created_at"),
-                "updated_at": item.get("updated_at"),
-                "coordenadas": item.get("coordenadas"),
-            }
-            for item in items
-        ]
+    items = [
+        {
+            "incidente_id": item.get("incidente_id"),
+            "titulo": item.get("titulo"),
+            "descripcion": item.get("descripcion"),
+            "piso": item.get("piso"),
+            "ubicacion": item.get("ubicacion"),
+            "tipo": item.get("tipo"),
+            "nivel_urgencia": item.get("nivel_urgencia"),
+            "evidencias": item.get("evidencias", []),
+            "estado": item.get("estado"),
+            "usuario_correo": item.get("usuario_correo"),
+            "created_at": item.get("created_at"),
+            "updated_at": item.get("updated_at"),
+            "coordenadas": item.get("coordenadas"),
+        }
+        for item in items
+    ]
 
     return _resp(200, {
         "contents": items,
