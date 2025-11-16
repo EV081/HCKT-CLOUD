@@ -88,7 +88,7 @@ resources:
         TaskDefinition: !Ref AnaliticaAirflowTaskDefinition
         NetworkConfiguration:
           AwsvpcConfiguration:
-            AssignPublicIp: true
+            AssignPublicIp: ENABLED
             Subnets:
               Fn::Split:
                 - ","
