@@ -2,8 +2,9 @@ import os
 import json
 import math
 import boto3
-from boto3.dynamodb.conditions import Key
-from reportes.utils import validar_token
+from boto3.dynamodb.conditions import Attr
+from CRUD.utils import validar_token
+
 TABLE_INCIDENTES = os.environ.get("TABLE_INCIDENTES")
 
 def _resp(code, body):
@@ -17,7 +18,6 @@ def _safe_int(v, default):
 
 def lambda_handler(event, context):
     token = event.get("headers", {}).get("authorization", "").split(" ")[-1]
-    
     resultado_validacion = validar_token(token)
     
     if not resultado_validacion.get("valido"):
@@ -28,13 +28,16 @@ def lambda_handler(event, context):
         "rol": resultado_validacion.get("rol")
     }
 
-    body = json.loads(event.get("body") or "{}")
-    tenant_id = body.get("tenant_id")
-    if not tenant_id:
-        return _resp(400, {"error":"Falta tenant_id en el body"})
+    rol = usuario_autenticado["rol"]
+    correo_usuario = usuario_autenticado["correo"]
 
+    if rol not in ["estudiante", "personal_administrativo", "autoridad"]:
+        return _resp(403, {"error": "No tienes permisos para listar incidentes"})
+
+    body = json.loads(event.get("body") or "{}")
     page = _safe_int(body.get("page", 0), 0)
     size = _safe_int(body.get("size", body.get("limit", 10)), 10)
+
     if size <= 0 or size > 100:
         size = 10
     if page < 0:
@@ -43,16 +46,22 @@ def lambda_handler(event, context):
     ddb = boto3.resource("dynamodb")
     table = ddb.Table(TABLE_INCIDENTES)
 
+    filter_expr = None
+    if rol == "estudiante":
+        filter_expr = Attr("usuario_correo").eq(correo_usuario)
+
     total = 0
     count_args = {
-        "KeyConditionExpression": Key("tenant_id").eq(tenant_id),
         "Select": "COUNT"
     }
+    if filter_expr is not None:
+        count_args["FilterExpression"] = filter_expr
+
     lek = None
     while True:
         if lek:
             count_args["ExclusiveStartKey"] = lek
-        rcount = table.query(**count_args)
+        rcount = table.scan(**count_args)
         total += rcount.get("Count", 0)
         lek = rcount.get("LastEvaluatedKey")
         if not lek:
@@ -70,15 +79,16 @@ def lambda_handler(event, context):
         })
 
     qargs = {
-        "KeyConditionExpression": Key("tenant_id").eq(tenant_id),
         "Limit": size
     }
+    if filter_expr is not None:
+        qargs["FilterExpression"] = filter_expr
 
     lek = None
     for _ in range(page):
         if lek:
             qargs["ExclusiveStartKey"] = lek
-        rskip = table.query(**qargs)
+        rskip = table.scan(**qargs)
         lek = rskip.get("LastEvaluatedKey")
         if not lek:
             return _resp(200, {
@@ -91,12 +101,12 @@ def lambda_handler(event, context):
 
     if lek:
         qargs["ExclusiveStartKey"] = lek
-    rpage = table.query(**qargs)
+    rpage = table.scan(**qargs)
     items = rpage.get("Items", [])
 
-    if usuario_autenticado["rol"] == "estudiante":
+    if rol == "estudiante":
         items = [
-            {  
+            {
                 "titulo": item.get("titulo"),
                 "piso": item.get("piso"),
                 "tipo": item.get("tipo"),
@@ -107,9 +117,9 @@ def lambda_handler(event, context):
             }
             for item in items
         ]
-    elif usuario_autenticado["rol"] in ["personal_administrativo", "autoridad"]:
+    elif rol in ["personal_administrativo", "autoridad"]:
         items = [
-            {   
+            {
                 "incidente_id": item.get("incidente_id"),
                 "titulo": item.get("titulo"),
                 "descripcion": item.get("descripcion"),
@@ -121,7 +131,7 @@ def lambda_handler(event, context):
                 "estado": item.get("estado"),
                 "usuario_correo": item.get("usuario_correo"),
                 "created_at": item.get("created_at"),
-                "updated_at": item.get("updated_at")  
+                "updated_at": item.get("updated_at")
             }
             for item in items
         ]

@@ -1,7 +1,7 @@
 import os
 import json
 import boto3
-from reportes.utils import validar_token
+from CRUD.utils import validar_token
 from botocore.exceptions import ClientError
 
 dynamodb = boto3.resource('dynamodb')
@@ -33,18 +33,6 @@ def lambda_handler(event, context):
             "body": json.dumps({"message": "Falta 'incidente_id' en la solicitud"})
         }
 
-    if usuario_autenticado["rol"] == "personal_administrativo":
-        print("Acceso concedido como personal_administrativo")
-    elif usuario_autenticado["rol"] == "autoridad":
-        print("Acceso concedido como autoridad")
-    elif usuario_autenticado["rol"] == "estudiante":
-        print("Acceso concedido como estudiante")
-        if not incidente_id:
-            return {
-                "statusCode": 403,
-                "body": json.dumps({"message": "Acceso denegado: Solo puedes ver tu propio reporte"})
-            }
-
     try:
         response = incidentes_table.get_item(Key={'incidente_id': incidente_id})
         if 'Item' not in response:
@@ -53,29 +41,34 @@ def lambda_handler(event, context):
                 "body": json.dumps({"message": "Incidente no encontrado"})
             }
         incidente = response['Item']
-        
-        if usuario_autenticado["rol"] == "personal_administrativo" and incidente.get('usuario_correo') != usuario_autenticado["correo"]:
-            return {
-                "statusCode": 403,
-                "body": json.dumps({"message": "Acceso denegado: No puedes ver reportes de otros usuarios"})
-            }
-
-        if usuario_autenticado["rol"] == "estudiante" and incidente.get('usuario_correo') != usuario_autenticado["correo"]:
-            return {
-                "statusCode": 403,
-                "body": json.dumps({"message": "Acceso denegado: Solo puedes ver tu propio reporte"})
-            }
-        
-        return {
-            "statusCode": 200,
-            "body": json.dumps({
-                "message": "Incidente encontrado",
-                "incidente": incidente
-            })
-        }
-    
     except ClientError as e:
         return {
             "statusCode": 500,
             "body": json.dumps({"message": f"Error al obtener el incidente: {str(e)}"})
         }
+
+    rol = usuario_autenticado["rol"]
+    correo_usuario = usuario_autenticado["correo"]
+    correo_propietario = incidente.get('usuario_correo')
+
+    if rol in ["personal_administrativo", "autoridad"]:
+        pass
+    elif rol == "estudiante":
+        if correo_propietario != correo_usuario:
+            return {
+                "statusCode": 403,
+                "body": json.dumps({"message": "Acceso denegado: Solo puedes ver tu propio reporte"})
+            }
+    else:
+        return {
+            "statusCode": 403,
+            "body": json.dumps({"message": "No tienes permisos para ver incidentes"})
+        }
+    
+    return {
+        "statusCode": 200,
+        "body": json.dumps({
+            "message": "Incidente encontrado",
+            "incidente": incidente
+        })
+    }
