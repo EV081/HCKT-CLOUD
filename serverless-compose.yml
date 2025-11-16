@@ -46,7 +46,7 @@ services:
       - incidentes
 
   # Microservicio de Logs
-  notificaciones:
+  logs:
     path: Logs
     dependsOn:
       - dependencias
