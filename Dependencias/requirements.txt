@@ -1,0 +1,19 @@
+# ============================================================
+# DEPENDENCIAS COMPARTIDAS - ALERTA UTEC
+# ============================================================
+# Estas dependencias se empaquetan en una Lambda Layer
+# y son compartidas por todos los microservicios
+
+# AWS SDK
+boto3>=1.35.0
+botocore>=1.35.0
+
+# Validación de datos
+jsonschema>=4.23.0
+
+# JWT para autenticación
+PyJWT>=2.9.0
+
+# Utilidades
+python-dateutil>=2.9.0
+requests>=2.32.0

@@ -1,0 +1,31 @@
+service: alerta-utec-dependencias
+
+provider:
+  name: aws
+  runtime: python3.13
+  region: us-east-1
+
+layers:
+  pythonDependencies:
+    path: layer
+    name: ${self:service}-python-layer
+    description: Capa compartida con dependencias Python para todos los microservicios
+    compatibleRuntimes:
+      - python3.13
+      - python3.12
+      - python3.11
+    retain: false
+
+resources:
+  Outputs:
+    PythonDependenciesLayerArn:
+      Value:
+        Ref: PythonDependenciesLambdaLayer
+      Export:
+        Name: ${self:service}-PythonLayerArn
+    
+    PythonDependenciesLayerVersion:
+      Value:
+        Ref: PythonDependenciesLambdaLayer
+      Export:
+        Name: ${self:service}-PythonLayerVersion
