@@ -67,6 +67,20 @@ functions:
             identitySource: method.request.header.Authorization
             type: token
 
+  obtenerUsuario:
+    handler: CRUD/ObtenerUsuario.lambda_handler
+    name: alerta-utec-usuarios-${sls:stage}-ObtenerUsuario
+    events:
+      - http:
+          path: usuario/obtener
+          method: get
+          cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token
+
   modificar:
     handler: CRUD/ModificarUsuario.lambda_handler
     name: alerta-utec-usuarios-${sls:stage}-ModificarUsuario
@@ -74,6 +88,20 @@ functions:
       - http:
           path: usuario/modificar
           method: put
+          cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token
+
+  cambiarContrasena:
+    handler: CRUD/CambiarContrasena.lambda_handler
+    name: alerta-utec-usuarios-${sls:stage}-CambiarContrasena
+    events:
+      - http:
+          path: usuario/cambiar-contrasena
+          method: post
           cors: true
           authorizer:
             name: authorizer

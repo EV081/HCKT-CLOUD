@@ -1,17 +1,45 @@
 {
 	"info": {
-		"_postman_id": "858c4fa1-ad66-4e6a-a428-fb9d32a0e169",
+		"_postman_id": "ab7fc47c-90ae-4935-9cde-857b93881ce2",
 		"name": "Incidentes UTEC",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "43509885",
-		"_collection_link": "https://dark-sunset-246817.postman.co/workspace/DBP~16941fd4-2fc3-45ac-91eb-0146a2c045ea/collection/43509885-858c4fa1-ad66-4e6a-a428-fb9d32a0e169?action=share&source=collection_link&creator=43509885"
+		"_collection_link": "https://dark-sunset-246817.postman.co/workspace/DBP~16941fd4-2fc3-45ac-91eb-0146a2c045ea/collection/43509885-ab7fc47c-90ae-4935-9cde-857b93881ce2?action=share&source=collection_link&creator=43509885"
 	},
 	"item": [
 		{
 			"name": "Users",
 			"item": [
 				{
-					"name": "Crear Estudiante",
+					"name": "Registro (Estudiante)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let body = pm.request.body.raw;\r",
+									"let bodyJson = JSON.parse(body);\r",
+									"pm.collectionVariables.set(\"correo_estudiante\", bodyJson.correo);\r",
+									"pm.collectionVariables.set(\"contrasena_estudiante\", bodyJson.contrasena);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -38,7 +66,35 @@
 					"response": []
 				},
 				{
-					"name": "Crear Personal",
+					"name": "Crear Personal (Autoridad)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let body = pm.request.body.raw;\r",
+									"let bodyJson = JSON.parse(body);\r",
+									"pm.collectionVariables.set(\"correo_personal\", bodyJson.correo);\r",
+									"pm.collectionVariables.set(\"contrasena_personal\", bodyJson.contrasena);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -66,6 +122,22 @@
 				},
 				{
 					"name": "Login Usuario (Estudiante)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Login estudiante 200\", function () { pm.response.to.have.status(200); });",
+									"const data = pm.response.json();",
+									"pm.collectionVariables.set(\"token_estudiante\", data.token);",
+									"pm.test(\"Rol estudiante\", function () { pm.expect(data.usuario.rol).to.eql('estudiante'); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -89,23 +161,26 @@
 							]
 						}
 					},
+					"response": []
+				},
+				{
+					"name": "Login Usuario (P.A.)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"pm.test(\"Login estudiante 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Login personal 200\", function () { pm.response.to.have.status(200); });",
 									"const data = pm.response.json();",
-									"pm.collectionVariables.set(\"token_estudiante\", data.token);",
-									"pm.test(\"Rol estudiante\", function () { pm.expect(data.usuario.rol).to.eql('estudiante'); });"
-								]
+									"pm.collectionVariables.set(\"token_personal\", data.token);",
+									"pm.test(\"Rol personal\", function () { pm.expect(data.usuario.rol).to.eql('personal_administrativo'); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
-					]
-				},
-				{
-					"name": "Login Usuario (Personal)",
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -129,23 +204,24 @@
 							]
 						}
 					},
+					"response": []
+				},
+				{
+					"name": "Login Usuario (Autoridad)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test(\"Login personal 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Login autoridad 200\", function () { pm.response.to.have.status(200); });",
 									"const data = pm.response.json();",
-									"pm.collectionVariables.set(\"token_personal\", data.token);",
-									"pm.test(\"Rol personal\", function () { pm.expect(data.usuario.rol).to.eql('personal_administrativo'); });"
+									"pm.collectionVariables.set(\"token_autoridad\", data.token);",
+									"pm.test(\"Rol autoridad\", function () { pm.expect(data.usuario.rol).to.eql('autoridad'); });"
 								]
 							}
 						}
-					]
-				},
-				{
-					"name": "Login Usuario (Autoridad)",
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -169,32 +245,38 @@
 							]
 						}
 					},
+					"response": []
+				},
+				{
+					"name": "Mi Usuario (Estudiante)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"pm.test(\"Login autoridad 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Mi usuario 200\", function () { pm.response.to.have.status(200); });",
 									"const data = pm.response.json();",
-									"pm.collectionVariables.set(\"token_autoridad\", data.token);",
-									"pm.test(\"Rol autoridad\", function () { pm.expect(data.usuario.rol).to.eql('autoridad'); });"
-								]
+									"pm.test(\"Rol coherente\", function () { pm.expect(data.usuario.rol).to.eql('estudiante'); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
-					]
-				},
-				{
-					"name": "Mi Usuario (Estudiante)",
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_estudiante}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
-						"header": [
-							{
-								"key": "authorization",
-								"value": "Bearer {{token_estudiante}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{baserUrl_usuarios}}/usuario/mi",
 							"host": [
@@ -206,31 +288,38 @@
 							]
 						}
 					},
+					"response": []
+				},
+				{
+					"name": "Modificar Mi Usuario (Estudiante)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"pm.test(\"Mi usuario 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Modificar usuario 200\", function () { pm.response.to.have.status(200); });",
 									"const data = pm.response.json();",
-									"pm.test(\"Rol coherente\", function () { pm.expect(data.usuario.rol).to.eql('estudiante'); });"
-								]
+									"pm.test(\"Sin contraseña\", function () { pm.expect(data.usuario).to.not.have.property('contrasena'); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
-					]
-				},
-				{
-					"name": "Modificar Usuario (Estudiante)",
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_estudiante}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
-						"header": [
-							{
-								"key": "authorization",
-								"value": "Bearer {{token_estudiante}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"correo\": \"{{correo_estudiante}}\",\n  \"nombre\": \"Nombre Actualizado\",\n  \"contrasena\": \"{{contrasena_estudiante}}\"\n}",
@@ -251,31 +340,36 @@
 							]
 						}
 					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Mi Usuario (Estudiante)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"pm.test(\"Modificar usuario 200\", function () { pm.response.to.have.status(200); });",
-									"const data = pm.response.json();",
-									"pm.test(\"Sin contraseña\", function () { pm.expect(data.usuario).to.not.have.property('contrasena'); });"
-								]
+									"pm.test(\"Eliminar por autoridad 200\", function () { pm.response.to.have.status(200); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
-					]
-				},
-				{
-					"name": "Eliminar Usuario (Autoridad)",
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_estudiante}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
-						"header": [
-							{
-								"key": "authorization",
-								"value": "Bearer {{token_autoridad}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"correo\": \"{{correo_estudiante}}\"\n}",
@@ -296,17 +390,210 @@
 							]
 						}
 					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Usuario (Autoridad/P.A.)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Eliminar por autoridad 200\", function () { pm.response.to.have.status(200); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_autoridad}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"correo\": \"{{correo_estudiante}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/usuario/eliminar",
+							"host": [
+								"{{baserUrl_usuarios}}"
+							],
+							"path": [
+								"usuario",
+								"eliminar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Usuario (Autoridad)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const body = JSON.parse(pm.request.body.raw);",
+									"pm.collectionVariables.set(\"correo_estudiante_gestionado\", body.correo);",
+									"pm.collectionVariables.set(\"contrasena_estudiante_gestionado\", body.contrasena);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Creación autorizada 201\", function () { pm.response.to.have.status(201); });",
+									"const data = pm.response.json();",
+									"pm.test(\"Sin token para terceros\", function () { pm.expect(data).to.not.have.property(\"token\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "Bearer {{token_autoridad}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Estudiante Gestionado\",\n  \"correo\": \"gestionado.estudiante@utec.edu.pe\",\n  \"contrasena\": \"gestion123\",\n  \"rol\": \"estudiante\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/usuario/crear",
+							"host": ["{{baserUrl_usuarios}}"],
+							"path": ["usuario","crear"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Usuario (Autoridad)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test(\"Eliminar por autoridad 200\", function () { pm.response.to.have.status(200); });"
+									"pm.test(\"Autoridad obtiene usuario\", function () { pm.response.to.have.status(200); });",
+									"const data = pm.response.json();",
+									"pm.test(\"Correo coincide\", function () { pm.expect(data.usuario.correo).to.eql(pm.collectionVariables.get(\"correo_estudiante_gestionado\")); });"
 								]
 							}
 						}
-					]
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{ "key": "token", "value": "{{token_autoridad}}", "type": "string" }
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/usuario/obtener?correo={{correo_estudiante_gestionado}}",
+							"host": ["{{baserUrl_usuarios}}"],
+							"path": ["usuario","obtener"],
+							"query": [
+								{ "key": "correo", "value": "{{correo_estudiante_gestionado}}" }
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Usuario (Personal)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Personal accede a estudiante\", function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{ "key": "token", "value": "{{token_personal}}", "type": "string" }
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/usuario/obtener?correo={{correo_estudiante}}",
+							"host": ["{{baserUrl_usuarios}}"],
+							"path": ["usuario","obtener"],
+							"query": [
+								{ "key": "correo", "value": "{{correo_estudiante}}" }
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cambiar Contraseña (Estudiante)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Contraseña cambiada\", function () { pm.response.to.have.status(200); });",
+									"const payload = JSON.parse(pm.request.body.raw);",
+									"pm.collectionVariables.set(\"contrasena_estudiante\", payload.nueva_contrasena);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{ "key": "token", "value": "{{token_estudiante}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"contrasena_actual\": \"{{contrasena_estudiante}}\",\n  \"nueva_contrasena\": \"yaritza456\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/usuario/cambiar-contrasena",
+							"host": ["{{baserUrl_usuarios}}"],
+							"path": ["usuario","cambiar-contrasena"]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -315,15 +602,34 @@
 			"item": [
 				{
 					"name": "Crear Incidente (Estudiante)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "authorization",
-								"value": "Bearer {{token_estudiante}}",
-								"type": "text"
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Crear incidente 201\", function () { pm.response.to.have.status(201); });",
+									"const data = pm.response.json();",
+									"if (data.incidente_id) { pm.collectionVariables.set(\"incidente_id\", data.incidente_id); }"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
-						],
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_estudiante}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"titulo\": \"Fuga de agua en baño del 3er piso\",\n  \"descripcion\": \"Se detectó una fuga de agua constante en el baño del 3er piso, cerca del aula 305.\",\n  \"piso\": 3,\n  \"ubicacion\": {\n    \"x\": -76,\n    \"y\": -12\n  },\n  \"tipo\": \"mantenimiento\",\n  \"nivel_urgencia\": \"medio\"\n}",
@@ -344,31 +650,36 @@
 							]
 						}
 					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Incidente (Estudiante)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"pm.test(\"Crear incidente 201\", function () { pm.response.to.have.status(201); });",
-									"const data = pm.response.json();",
-									"if (data.incidente_id) { pm.collectionVariables.set(\"incidente_id\", data.incidente_id); }"
-								]
+									"pm.test(\"Actualizar incidente 200\", function () { pm.response.to.have.status(200); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
-					]
-				},
-				{
-					"name": "Actualizar Incidente (Estudiante)",
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_estudiante}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
-						"header": [
-							{
-								"key": "authorization",
-								"value": "Bearer {{token_estudiante}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"incidente_id\": \"{{incidente_id}}\",\n  \"titulo\": \"Fuga de agua actualizada\",\n  \"descripcion\": \"Actualización del incidente por el estudiante.\",\n  \"piso\": 3,\n  \"ubicacion\": {\n    \"x\": -76,\n    \"y\": -12\n  },\n  \"tipo\": \"mantenimiento\",\n  \"nivel_urgencia\": \"medio\"\n}",
@@ -389,29 +700,36 @@
 							]
 						}
 					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Estado de Incidente (Personal)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"pm.test(\"Actualizar incidente 200\", function () { pm.response.to.have.status(200); });"
-								]
+									"pm.test(\"Actualizar estado 200\", function () { pm.response.to.have.status(200); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
-					]
-				},
-				{
-					"name": "Actualizar Estado de Incidente (Personal)",
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_personal}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
-						"header": [
-							{
-								"key": "authorization",
-								"value": "Bearer {{token_personal}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"incidente_id\": \"{{incidente_id}}\",\n  \"estado\": \"resuelto\"\n}",
@@ -432,29 +750,38 @@
 							]
 						}
 					},
+					"response": []
+				},
+				{
+					"name": "Buscar Incidente (Autoridad)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"pm.test(\"Actualizar estado 200\", function () { pm.response.to.have.status(200); });"
-								]
+									"pm.test(\"Buscar incidente 200\", function () { pm.response.to.have.status(200); });",
+									"const data = pm.response.json();",
+									"pm.test(\"Incluye correo\", function () { pm.expect(data.incidente).to.have.property('usuario_correo'); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
-					]
-				},
-				{
-					"name": "Buscar Incidente (Autoridad)",
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_autoridad}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
-						"header": [
-							{
-								"key": "authorization",
-								"value": "Bearer {{token_autoridad}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"incidente_id\": \"{{incidente_id}}\"\n}",
@@ -475,78 +802,40 @@
 							]
 						}
 					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test(\"Buscar incidente 200\", function () { pm.response.to.have.status(200); });",
-									"const data = pm.response.json();",
-									"pm.test(\"Incluye correo\", function () { pm.expect(data.incidente).to.have.property('usuario_correo'); });"
-								]
-							}
-						}
-					]
+					"response": []
 				},
 				{
 					"name": "Listar Incidentes (Estudiante)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "authorization",
-								"value": "Bearer {{token_estudiante}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"size\": 10\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baserUrl_incidentes}}/incidentes/listar",
-							"host": [
-								"{{baserUrl_incidentes}}"
-							],
-							"path": [
-								"incidentes",
-								"listar"
-							]
-						}
-					},
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Listar estudiante 200\", function () { pm.response.to.have.status(200); });",
 									"const data = pm.response.json();",
 									"if (Array.isArray(data.contents) && data.contents.length) {",
 									"  pm.test(\"Sin correo ajeno\", function () { pm.expect(data.contents[0]).to.not.have.property('usuario_correo'); });",
 									"}"
-								]
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
-					]
-				},
-				{
-					"name": "Listar Incidentes (Autoridad)",
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_estudiante}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
-						"header": [
-							{
-								"key": "authorization",
-								"value": "Bearer {{token_autoridad}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"size\": 10\n}",
@@ -567,21 +856,61 @@
 							]
 						}
 					},
+					"response": []
+				},
+				{
+					"name": "Listar Incidentes (Autoridad)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
 									"pm.test(\"Listar autoridad 200\", function () { pm.response.to.have.status(200); });",
 									"const data = pm.response.json();",
 									"if (Array.isArray(data.contents) && data.contents.length) {",
 									"  pm.test(\"Incluye correo\", function () { pm.expect(data.contents[0]).to.have.property('usuario_correo'); });",
 									"}"
-								]
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
-					]
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_autoridad}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"size\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baserUrl_incidentes}}/incidentes/listar",
+							"host": [
+								"{{baserUrl_incidentes}}"
+							],
+							"path": [
+								"incidentes",
+								"listar"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -625,58 +954,55 @@
 		},
 		{
 			"key": "baserUrl_analitica",
-			"value": "",
-			"type": "default"
+			"value": ""
 		},
 		{
 			"key": "token_estudiante",
-			"value": "",
-			"type": "default"
+			"value": ""
 		},
 		{
 			"key": "token_personal",
-			"value": "",
-			"type": "default"
+			"value": ""
 		},
 		{
 			"key": "token_autoridad",
-			"value": "",
-			"type": "default"
+			"value": ""
 		},
 		{
 			"key": "correo_estudiante",
-			"value": "",
-			"type": "default"
+			"value": ""
 		},
 		{
 			"key": "contrasena_estudiante",
-			"value": "",
-			"type": "default"
+			"value": ""
 		},
 		{
 			"key": "correo_personal",
-			"value": "",
-			"type": "default"
+			"value": ""
 		},
 		{
 			"key": "contrasena_personal",
-			"value": "",
-			"type": "default"
+			"value": ""
 		},
 		{
 			"key": "correo_autoridad",
-			"value": "",
-			"type": "default"
+			"value": ""
 		},
 		{
 			"key": "contrasena_autoridad",
-			"value": "",
-			"type": "default"
+			"value": ""
 		},
 		{
 			"key": "incidente_id",
-			"value": "",
-			"type": "default"
+			"value": ""
+		},
+		{
+			"key": "correo_estudiante_gestionado",
+			"value": ""
+		},
+		{
+			"key": "contrasena_estudiante_gestionado",
+			"value": ""
 		}
 	]
 }

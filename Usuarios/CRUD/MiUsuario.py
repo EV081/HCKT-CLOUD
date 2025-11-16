@@ -15,6 +15,8 @@ def lambda_handler(event, context):
         "rol": authorizer.get("rol")
     }
 
+    correo_solicitado = usuario_autenticado["correo"]
+
     # Obtener correo del query parameter
     query_params = event.get("queryStringParameters") or {}
     correo_solicitado = query_params.get("correo", usuario_autenticado["correo"])

@@ -1,70 +1,81 @@
 import json
 import boto3
 import os
-import jwt
-import uuid
-from CRUD.utils import generar_token
+from CRUD.utils import generar_token, validar_token, ALLOWED_ROLES
 
-TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS")
+TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS", "TABLE_USUARIOS")
 
 dynamodb = boto3.resource("dynamodb")
 usuarios_table = dynamodb.Table(TABLE_USUARIOS_NAME)
 
 def lambda_handler(event, context):
     body = {}
+    headers = event.get("headers") or {}
+    auth_header = headers.get("authorization") or headers.get("Authorization")
+    rol_autenticado = None
 
-    # Parseo del cuerpo del evento (si es JSON o dict)
+    if auth_header:
+        token = auth_header.split(" ")[-1]
+        resultado_token = validar_token(token)
+        if not resultado_token.get("valido"):
+            return {
+                "statusCode": 401,
+                "body": json.dumps({"message": resultado_token.get("error", "Token inválido")})
+            }
+        rol_autenticado = resultado_token.get("rol")
+
     if isinstance(event, dict) and "body" in event:
         raw_body = event.get("body")
         if isinstance(raw_body, str):
-            if raw_body:
-                body = json.loads(raw_body)
-            else:
-                body = {}
+            body = json.loads(raw_body) if raw_body else {}
         elif isinstance(raw_body, dict):
             body = raw_body
-        else:
-            body = {}
     elif isinstance(event, dict):
         body = event
     elif isinstance(event, str):
         body = json.loads(event)
 
-    # Extraer los campos del cuerpo
     nombre = body.get("nombre")
     correo = body.get("correo")
     contrasena = body.get("contrasena")
-    rol = body.get("rol", "estudiante")  # Asignar valor por defecto si no se pasa
+    rol = body.get("rol", "estudiante")
 
-    # Validación de los campos obligatorios
     if not nombre or not correo or not contrasena or not rol:
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "nombre, correo, contrasena y rol son obligatorios"})
         }
 
-    # Validar formato de correo electrónico
     if "@" not in correo:
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "Correo electrónico inválido"})
         }
 
-    # Validar longitud mínima de la contraseña
     if len(contrasena) < 6:
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "La contraseña debe tener al menos 6 caracteres"})
         }
 
-    # Validar que el rol esté entre los valores permitidos
-    if rol not in ["estudiante", "personal_administrativo", "autoridad"]:
+    if rol not in ALLOWED_ROLES:
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "Rol inválido, debe ser 'estudiante', 'personal_administrativo' o 'autoridad'"})
         }
 
-    # Validar si el usuario ya existe
+    if not rol_autenticado:
+        if rol != "estudiante":
+            return {
+                "statusCode": 403,
+                "body": json.dumps({"message": "Solo puedes auto-registrarte como estudiante"})
+            }
+    elif rol_autenticado != "autoridad":
+        return {
+            "statusCode": 403,
+            "body": json.dumps({"message": "Solo una autoridad puede crear usuarios adicionales"})
+        }
+
     resp = usuarios_table.get_item(Key={"correo": correo})
     if "Item" in resp:
         return {
@@ -72,38 +83,28 @@ def lambda_handler(event, context):
             "body": json.dumps({"error": "El correo ya está registrado"})
         }
 
-    # Generar un ID único para el usuario
-    usuario_id = str(uuid.uuid4())  # Generar un UUID para el usuario
-
-    # Crear el item a insertar en DynamoDB
     item = {
-        "usuario_id": usuario_id,
         "nombre": nombre,
-        "correo": correo,  # ← Cambiado de "email" a "correo"
+        "correo": correo,
         "contrasena": contrasena,
         "rol": rol
     }
 
-    # Insertar el nuevo usuario en la tabla
     usuarios_table.put_item(Item=item)
 
-    # Generar token automáticamente al crear el usuario
-    token = generar_token(
-        correo=correo,
-        role=rol,
-        nombre=nombre
-    )
+    respuesta = {
+        "message": "Usuario creado correctamente",
+        "usuario": {
+            "correo": correo,
+            "nombre": nombre,
+            "rol": rol
+        }
+    }
+
+    if not rol_autenticado:
+        respuesta["token"] = generar_token(correo=correo, role=rol, nombre=nombre)
 
     return {
         "statusCode": 201,
-        "body": json.dumps({
-            "message": "Usuario creado correctamente",
-            "token": token,
-            "usuario": {
-                "usuario_id": usuario_id,
-                "correo": correo,
-                "nombre": nombre,
-                "rol": rol
-            }
-        })
+        "body": json.dumps(respuesta)
     }
