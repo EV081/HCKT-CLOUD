@@ -3,8 +3,8 @@ service: alerta-utec-incidentes
 provider:
   name: aws
   runtime: python3.13
-  region: us-east-1
-  stage: ${opt:stage, 'dev'} 
+  region: ${opt:region, env:AWS_REGION, 'us-east-1'}
+  stage: ${sls:stage}
   memorySize: 256
   timeout: 30
   iam:

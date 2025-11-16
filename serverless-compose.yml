@@ -23,6 +23,9 @@ services:
   # Microservicio de gestión de incidentes
   incidentes:
     path: Incidentes
+    inputs:
+      stage: ${self:stage}
+      region: ${env:AWS_REGION, 'us-east-1'}
     dependsOn:
       - dependencias
       - usuarios
