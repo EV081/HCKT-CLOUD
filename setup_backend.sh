@@ -62,6 +62,41 @@ prepare_dependencies() {
     cd ../..
 }
 
+ensure_analitica_bucket() {
+  if [ -z "${ANALITICA_S3_BUCKET}" ]; then
+    echo -e "${RED}❌ ANALITICA_S3_BUCKET no está definido en .env${NC}"
+    exit 1
+  fi
+
+  if aws s3api head-bucket --bucket "${ANALITICA_S3_BUCKET}" 2>/dev/null; then
+    echo -e "${GREEN}✅ Bucket '${ANALITICA_S3_BUCKET}' disponible${NC}"
+  else
+    echo -e "${YELLOW}🔨 Creando bucket '${ANALITICA_S3_BUCKET}'...${NC}"
+    if [ "${AWS_REGION}" = "us-east-1" ]; then
+      aws s3api create-bucket --bucket "${ANALITICA_S3_BUCKET}" >/dev/null
+    else
+      aws s3api create-bucket --bucket "${ANALITICA_S3_BUCKET}" --create-bucket-configuration LocationConstraint="${AWS_REGION}" >/dev/null
+    fi
+    aws s3api put-bucket-versioning --bucket "${ANALITICA_S3_BUCKET}" --versioning-configuration Status=Enabled >/dev/null
+    aws s3api put-public-access-block --bucket "${ANALITICA_S3_BUCKET}" --public-access-block-configuration BlockPublicAcls=true IgnorePublicAcls=true BlockPublicPolicy=true RestrictPublicBuckets=true >/dev/null
+    echo -e "${GREEN}✅ Bucket creado${NC}"
+  fi
+}
+
+upload_airflow_dag() {
+  local source_file="Analitica/etl_dynamodb.py"
+  local target_uri="s3://${ANALITICA_S3_BUCKET}/dags/etl_dynamodb.py"
+
+  if [ ! -f "${source_file}" ]; then
+    echo -e "${RED}❌ No se encuentra ${source_file}${NC}"
+    exit 1
+  fi
+
+  echo -e "${BLUE}📤 Subiendo DAG a ${target_uri}...${NC}"
+  aws s3 cp "${source_file}" "${target_uri}" >/dev/null
+  echo -e "${GREEN}✅ DAG actualizado${NC}"
+}
+
 # Función para crear infraestructura
 deploy_infrastructure() {
     echo -e "\n${BLUE}🏗️  Creando recursos de infraestructura (Tablas DynamoDB y Bucket S3)...${NC}"
@@ -79,7 +114,9 @@ deploy_infrastructure() {
 # Función para desplegar microservicios
 deploy_services() {
     echo -e "\n${BLUE}🚀 Desplegando microservicios con Serverless Compose...${NC}"
-    prepare_dependencies  # ← Agregar esta línea
+    prepare_dependencies
+    ensure_analitica_bucket
+    upload_airflow_dag
     sls deploy
     echo -e "${GREEN}✅ Microservicios desplegados${NC}"
 }

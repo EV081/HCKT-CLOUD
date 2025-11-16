@@ -77,6 +77,28 @@ resources:
                 Value: ${env:ANALITICA_GLUE_CRAWLER}
               - Name: ANALITICA_GLUE_ROLE_NAME
                 Value: ${env:ANALITICA_GLUE_ROLE_NAME, 'GlueCrawlerRole'}
+              - Name: ANALITICA_DAG_S3_URI
+                Value: s3://${env:ANALITICA_S3_BUCKET}/dags/etl_dynamodb.py
+              - Name: AIRFLOW_UID
+                Value: "0"
+              - Name: AIRFLOW__CORE__EXECUTOR
+                Value: SequentialExecutor
+              - Name: AIRFLOW__CORE__LOAD_EXAMPLES
+                Value: "False"
+              - Name: AIRFLOW__CORE__DAGS_FOLDER
+                Value: /opt/airflow/dags
+              - Name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+                Value: sqlite:////opt/airflow/airflow.db
+            Command:
+              - /bin/bash
+              - -c
+              - |
+                set -e
+                pip install --quiet awscli
+                mkdir -p /opt/airflow/dags
+                aws s3 cp "${ANALITICA_DAG_S3_URI}" /opt/airflow/dags/etl_dynamodb.py
+                airflow db init
+                exec airflow standalone
 
     AnaliticaAirflowService:
       Type: AWS::ECS::Service
