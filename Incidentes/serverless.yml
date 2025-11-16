@@ -61,6 +61,14 @@ functions:
           method: post
           path: incidentes/listar
           cors: true
+  ListHistorialIncidentes:
+    handler: CRUD/historial_list.lambda_handler
+    description: Listar incidentes por usuario con paginación
+    events:
+      - http:
+          method: post
+          path: incidentes/historial
+          cors: true
 
 resources:
   Outputs:
