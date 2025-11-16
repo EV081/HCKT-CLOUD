@@ -3,10 +3,52 @@ import boto3
 import os
 from CRUD.utils import generar_token, validar_token, ALLOWED_ROLES
 
+# --- NUEVO: imports y config de SendGrid ---
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
+EMAIL_FROM = os.environ.get("EMAIL_FROM", "no-reply@example.com")
+# -------------------------------------------
+
 TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS", "TABLE_USUARIOS")
 
 dynamodb = boto3.resource("dynamodb")
 usuarios_table = dynamodb.Table(TABLE_USUARIOS_NAME)
+
+# --- NUEVO: función para enviar correo de bienvenida ---
+def enviar_correo_bienvenida(nombre: str, correo: str):
+    """
+    Envía un correo de bienvenida usando SendGrid.
+    Si falta configuración, solo hace log y no rompe la Lambda.
+    """
+    if not SENDGRID_API_KEY or not EMAIL_FROM:
+        print("SendGrid no configurado (falta SENDGRID_API_KEY o EMAIL_FROM)")
+        return
+
+    asunto = "Bienvenido a Alerta UTEC"
+    html = f"""
+        <p>Hola <strong>{nombre}</strong>,</p>
+        <p>¡Bienvenido a la aplicación <strong>Alerta UTEC</strong>! 🎓</p>
+        <p>Ya puedes usar la plataforma para registrar tus incidencias.</p>
+    """
+
+    message = Mail(
+        from_email=EMAIL_FROM,
+        to_emails=correo,
+        subject=asunto,
+        html_content=html
+    )
+
+    try:
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        print("Correo de bienvenida enviado. Status:", response.status_code)
+    except Exception as e:
+        # No queremos romper la creación de usuario por un fallo de email
+        print("Error al enviar correo de bienvenida:", repr(e))
+# -------------------------------------------------------
+
 
 def lambda_handler(event, context):
     body = {}
@@ -91,6 +133,10 @@ def lambda_handler(event, context):
     }
 
     usuarios_table.put_item(Item=item)
+
+    # --- NUEVO: enviar correo de bienvenida ---
+    enviar_correo_bienvenida(nombre=nombre, correo=correo)
+    # ------------------------------------------
 
     respuesta = {
         "message": "Usuario creado correctamente",
