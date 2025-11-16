@@ -46,7 +46,7 @@ functions:
     events:
       - httpApi:
           method: PUT
-          path: incidentes/update_estado
+          path: /incidentes/update_estado
           cors: true
 
   SearchIncidente:
