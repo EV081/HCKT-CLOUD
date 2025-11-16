@@ -722,6 +722,20 @@
 				},
 				{
 					"name": "Crear empleado (P.A. o Autoridad)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const data = pm.response.json();\r",
+									"pm.collectionVariables.set(\"empleado_id\", data.empleado.empleado_id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -804,6 +818,80 @@
 							"path": [
 								"empleados",
 								"listar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar empleado (P.A. o Autoridad)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_autoridad}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"empleado_id\": \"{{empleado_id}}\",\r\n  \"nombre\": \"Técnico Soporte\",\r\n  \"tipo_area\": \"ti\",\r\n  \"estado\": \"activo\",\r\n  \"contacto\": {\r\n    \"telefono\": \"+51 900000001\",\r\n    \"correo\": \"soporte.ti@utec.edu.pe\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/empleados/modificar",
+							"host": [
+								"{{baserUrl_usuarios}}"
+							],
+							"path": [
+								"empleados",
+								"modificar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar empleado (P.A o Autoridad)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_autoridad}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"empleado_id\": \"{{empleado_id}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baserUrl_usuarios}}/empleados/eliminar",
+							"host": [
+								"{{baserUrl_usuarios}}"
+							],
+							"path": [
+								"empleados",
+								"eliminar"
 							]
 						}
 					},
@@ -1220,6 +1308,10 @@
 		},
 		{
 			"key": "usuarios_last_key",
+			"value": ""
+		},
+		{
+			"key": "empleado_id",
 			"value": ""
 		}
 	]
