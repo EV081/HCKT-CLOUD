@@ -6,8 +6,9 @@ org: ${env:ORG_NAME}
 app: alerta-utec-backend
 stage: dev
 
+# Usar archivo local para el estado
 state:
-  backend: local
+  file: .serverless/state.json
 
 services:
   # Capa compartida con dependencias Python
