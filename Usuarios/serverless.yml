@@ -16,7 +16,7 @@ provider:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
 
   layers:
-    - Fn::ImportValue: Usuarios-Python-Dependencies-Layer
+    - ${cf:alerta-utec-dependencias-dev.PythonDependenciesLayerExport}
 
 package:
   patterns:

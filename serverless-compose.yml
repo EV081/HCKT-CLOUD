@@ -10,29 +10,30 @@ stage: dev
 state:
   file: .serverless/state.json
 
-# Hook global: ejecutar antes de cualquier despliegue
-hooks:
-  before:deploy:
-    - echo "📊 Creando recursos de infraestructura y poblando datos..."
-    - chmod +x DataGenerator/run_poblator.sh && DataGenerator/run_poblator.sh
-    - echo "✅ Recursos de infraestructura listos"
-
 services:
   # Capa compartida con dependencias Python
   dependencias:
     path: Dependencias
+
+  # Infraestructura: Crear tablas y bucket
+  infraestructura:
+    path: DataGenerator
+    dependsOn:
+      - dependencias
 
   # Microservicio de gestión de usuarios
   usuarios:
     path: Usuarios
     dependsOn:
       - dependencias
+      - infraestructura
 
   # Microservicio de gestión de incidentes
   incidentes:
     path: Incidentes
     dependsOn:
       - dependencias
+      - infraestructura
       - usuarios
 
   # Microservicio de analítica
@@ -40,5 +41,6 @@ services:
     path: Analitica
     dependsOn:
       - dependencias
+      - infraestructura
       - incidentes
 
