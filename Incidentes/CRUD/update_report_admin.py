@@ -32,7 +32,7 @@ def lambda_handler(event, context):
         "rol": resultado_validacion.get("rol")
     }
     
-    if usuario_autenticado["rol"] != "personal_administrativo":
+    if usuario_autenticado["rol"] not in ["personal_administrativo", "autoridad"]:
         return {
             "statusCode": 403,
             "body": json.dumps({"message": "Solo un administrador puede cambiar el estado del incidente"})

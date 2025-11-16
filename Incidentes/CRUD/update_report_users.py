@@ -85,6 +85,31 @@ def lambda_handler(event, context):
             "body": json.dumps({"message": "Valor de 'piso' debe estar entre -2 y 11"})
         }
 
+    coordenadas = body.get("coordenadas")
+    lat = lng = None
+
+    if coordenadas is not None:
+        if not isinstance(coordenadas, dict):
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "'coordenadas' debe ser un objeto con 'lat' y 'lng'"})
+            }
+        
+        if "lat" not in coordenadas or "lng" not in coordenadas:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "'coordenadas' debe incluir 'lat' y 'lng'"})
+            }
+        
+        try:
+            lat = float(coordenadas["lat"])
+            lng = float(coordenadas["lng"])
+        except (TypeError, ValueError):
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "'lat' y 'lng' deben ser números"})
+            }
+
     try:
         response = incidentes_table.get_item(Key={'incidente_id': incidente_id})
         if 'Item' not in response:
@@ -144,7 +169,7 @@ def lambda_handler(event, context):
                 Bucket=INCIDENTES_BUCKET,
                 Key=key,
                 Body=file_bytes,
-                ContentType=content_type
+               ContentType=content_type
             )
             evidencia_url = f"s3://{INCIDENTES_BUCKET}/{key}"
         except ClientError as e:
@@ -179,6 +204,12 @@ def lambda_handler(event, context):
         "evidencias": [evidencia_url] if evidencia_url else incidente_actual.get("evidencias", []),
         "updated_at": datetime.now(timezone.utc).isoformat(),
     })
+
+    if coordenadas is not None:
+        incidente_actual["coordenadas"] = {
+            "lat": lat,
+            "lng": lng
+        }
 
     try:
         incidentes_table.put_item(Item=incidente_actual)

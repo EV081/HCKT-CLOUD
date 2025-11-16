@@ -74,9 +74,33 @@ def lambda_handler(event, context):
             "statusCode": 400,
             "body": json.dumps({"message": "Valor de 'piso' debe estar entre -2 y 11"})
         }
-    
-    incidente_id = str(uuid.uuid4())
 
+    coordenadas = body.get("coordenadas")
+    lat = lng = None
+
+    if coordenadas is not None:
+        if not isinstance(coordenadas, dict):
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "'coordenadas' debe ser un objeto con 'lat' y 'lng'"})
+            }
+        
+        if "lat" not in coordenadas or "lng" not in coordenadas:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "'coordenadas' debe incluir 'lat' y 'lng'"})
+            }
+        
+        try:
+            lat = float(coordenadas["lat"])
+            lng = float(coordenadas["lng"])
+        except (TypeError, ValueError):
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "'lat' y 'lng' deben ser números"})
+            }
+
+    incidente_id = str(uuid.uuid4())
     created_at = datetime.now(timezone.utc).isoformat()
     
     evidencia_url = None
@@ -158,6 +182,12 @@ def lambda_handler(event, context):
         "created_at": created_at,
         "updated_at": created_at
     }
+
+    if coordenadas is not None:
+        incidente["coordenadas"] = {
+            "lat": lat,
+            "lng": lng
+        }
     
     try:
         incidentes_table.put_item(Item=incidente)

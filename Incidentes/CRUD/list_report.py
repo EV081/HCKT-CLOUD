@@ -4,11 +4,31 @@ import math
 import boto3
 from boto3.dynamodb.conditions import Attr
 from CRUD.utils import validar_token
+from decimal import Decimal
 
 TABLE_INCIDENTES = os.environ.get("TABLE_INCIDENTES")
 
+def _convert_decimals(obj):
+    """
+    Convierte recursivamente Decimal -> int/float para que sea JSON serializable
+    y los números sigan siendo números en el JSON.
+    """
+    if isinstance(obj, list):
+        return [_convert_decimals(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: _convert_decimals(v) for k, v in obj.items()}
+    if isinstance(obj, Decimal):
+        if obj % 1 == 0:
+            return int(obj)
+        return float(obj)
+    return obj
+
 def _resp(code, body):
-    return {"statusCode": code, "body": json.dumps(body, ensure_ascii=False, default=str)}
+    safe_body = _convert_decimals(body)
+    return {
+        "statusCode": code,
+        "body": json.dumps(safe_body, ensure_ascii=False)
+    }
 
 def _safe_int(v, default):
     try:
@@ -136,7 +156,8 @@ def lambda_handler(event, context):
                 "estado": item.get("estado"),
                 "usuario_correo": item.get("usuario_correo"),
                 "created_at": item.get("created_at"),
-                "updated_at": item.get("updated_at")
+                "updated_at": item.get("updated_at"),
+                "coordenadas": item.get("coordenadas")
             }
             for item in items
         ]
