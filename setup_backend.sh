@@ -80,7 +80,7 @@ ensure_analitica_bucket() {
       aws s3api create-bucket --bucket "${ANALITICA_S3_BUCKET}" --create-bucket-configuration LocationConstraint="${region}" >/dev/null
     fi
     aws s3api put-bucket-versioning --bucket "${ANALITICA_S3_BUCKET}" --versioning-configuration Status=Enabled >/dev/null
-    aws s3api put-public-access-block --bucket "${ANALITICA_S3_BUCKET}" --public-access-block-configuration BlockPublicAcls=true IgnorePublicAcls=true BlockPublicPolicy=true RestrictPublicBuckets=true >/dev/null
+    aws s3api put-public-access-block --bucket "${ANALITICA_S3_BUCKET}" --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true >/dev/null
     echo -e "${GREEN}✅ Bucket creado${NC}"
   fi
 }
