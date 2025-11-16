@@ -3,6 +3,7 @@ import boto3
 import os
 
 TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS", "TABLE_USUARIOS")
+CORS_HEADERS = {"Access-Control-Allow-Origin": "*"}
 
 dynamodb = boto3.resource("dynamodb")
 usuarios_table = dynamodb.Table(TABLE_USUARIOS_NAME)
@@ -23,6 +24,7 @@ def lambda_handler(event, context):
     if rol not in ROLES_PERMITIDOS:
         return {
             "statusCode": 403,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "No tienes permiso para listar usuarios"})
         }
 
@@ -43,6 +45,7 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": f"Error al listar usuarios: {str(e)}"})
         }
 
@@ -53,6 +56,7 @@ def lambda_handler(event, context):
     last_evaluated = response.get("LastEvaluatedKey")
     return {
         "statusCode": 200,
+        "headers": CORS_HEADERS,
         "body": json.dumps({
             "usuarios": items,
             "count": len(items),

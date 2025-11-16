@@ -4,6 +4,7 @@ import boto3
 from boto3.dynamodb.conditions import Attr
 
 TABLE_EMPLEADOS_NAME = os.getenv("TABLE_EMPLEADOS", "TABLE_EMPLEADOS")
+CORS_HEADERS = {"Access-Control-Allow-Origin": "*"}
 
 dynamodb = boto3.resource("dynamodb")
 empleados_table = dynamodb.Table(TABLE_EMPLEADOS_NAME)
@@ -23,6 +24,7 @@ def lambda_handler(event, context):
     if authorizer.get("rol") not in ROLES_PERMITIDOS:
         return {
             "statusCode": 403,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "No tienes permiso para listar empleados"})
         }
 
@@ -50,6 +52,7 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": f"Error al listar empleados: {str(e)}"})
         }
 
@@ -57,6 +60,7 @@ def lambda_handler(event, context):
     last_evaluated = response.get("LastEvaluatedKey")
     return {
         "statusCode": 200,
+        "headers": CORS_HEADERS,
         "body": json.dumps({
             "empleados": items,
             "count": len(items),

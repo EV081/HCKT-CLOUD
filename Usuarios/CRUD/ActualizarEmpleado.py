@@ -4,7 +4,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 TABLE_EMPLEADOS_NAME = os.getenv("TABLE_EMPLEADOS", "TABLE_EMPLEADOS")
-
+CORS_HEADERS = { "Access-Control-Allow-Origin": "*" }
 dynamodb = boto3.resource("dynamodb")
 empleados_table = dynamodb.Table(TABLE_EMPLEADOS_NAME)
 
@@ -25,6 +25,7 @@ def lambda_handler(event, context):
     if authorizer.get("rol") not in ROLES_PERMITIDOS:
         return {
             "statusCode": 403,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "No tienes permiso para modificar empleados"})
         }
 
@@ -33,6 +34,7 @@ def lambda_handler(event, context):
     if not empleado_id:
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "empleado_id es obligatorio"})
         }
 
@@ -41,12 +43,14 @@ def lambda_handler(event, context):
     except ClientError as e:
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": f"Error al obtener empleado: {str(e)}"})
         }
 
     if "Item" not in resp:
         return {
             "statusCode": 404,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "Empleado no encontrado"})
         }
 
@@ -62,6 +66,7 @@ def lambda_handler(event, context):
         if tipo_area not in TIPOS_AREA:
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "tipo_area inválido"})
             }
         empleado["tipo_area"] = tipo_area
@@ -72,6 +77,7 @@ def lambda_handler(event, context):
         if estado not in ESTADOS_VALIDOS:
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "estado inválido"})
             }
         empleado["estado"] = estado
@@ -82,6 +88,7 @@ def lambda_handler(event, context):
         if contacto is not None and not isinstance(contacto, dict):
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "contacto debe ser un objeto"})
             }
         empleado["contacto"] = contacto or {}
@@ -90,6 +97,7 @@ def lambda_handler(event, context):
     if not hubo_cambios:
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "No hay cambios para aplicar"})
         }
 
@@ -98,11 +106,13 @@ def lambda_handler(event, context):
     except ClientError as e:
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": f"Error al actualizar empleado: {str(e)}"})
         }
 
     return {
         "statusCode": 200,
+        "headers": CORS_HEADERS,
         "body": json.dumps({
             "message": "Empleado actualizado correctamente",
             "empleado": empleado

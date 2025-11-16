@@ -14,6 +14,7 @@ s3 = boto3.client('s3')
 table_name = os.environ.get('TABLE_INCIDENTES')
 incidentes_table = dynamodb.Table(table_name)
 INCIDENTES_BUCKET = os.environ.get('INCIDENTES_BUCKET')
+CORS_HEADERS = { "Access-Control-Allow-Origin": "*" }
 
 logs_table_name = os.environ.get('TABLE_LOGS')
 logs_table = dynamodb.Table(logs_table_name) if logs_table_name else None
@@ -145,6 +146,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 401,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": resultado_validacion.get("error")})
         }
     
@@ -165,6 +167,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 403,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "No tienes permisos para actualizar un incidente"})
         }
 
@@ -180,6 +183,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "Falta 'incidente_id' en el body"})
         }
 
@@ -203,18 +207,21 @@ def lambda_handler(event, context):
             )
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": f"Falta el campo obligatorio: {field}"})
             }
 
     if body["tipo"] not in TIPO_ENUM:
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "Valor de 'tipo' no válido"})
         }
 
     if body["nivel_urgencia"] not in NIVEL_URGENCIA_ENUM:
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "Valor de 'nivel_urgencia' no válido"})
         }
 
@@ -223,12 +230,14 @@ def lambda_handler(event, context):
     except (TypeError, ValueError):
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "El campo 'piso' debe ser un número entero"})
         }
 
     if piso_val not in PISO_RANGO:
         return {
             "statusCode": 400,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "Valor de 'piso' debe estar entre -2 y 11"})
         }
 
@@ -239,12 +248,14 @@ def lambda_handler(event, context):
         if not isinstance(coordenadas, dict):
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "'coordenadas' debe ser un objeto con 'lat' y 'lng'"})
             }
         
         if "lat" not in coordenadas or "lng" not in coordenadas:
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "'coordenadas' debe incluir 'lat' y 'lng'"})
             }
         
@@ -254,6 +265,7 @@ def lambda_handler(event, context):
         except (InvalidOperation, TypeError, ValueError):
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "'lat' y 'lng' deben ser números válidos"})
             }
 
@@ -268,6 +280,7 @@ def lambda_handler(event, context):
             )
             return {
                 "statusCode": 404,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "Incidente no encontrado"})
             }
         incidente_actual = response['Item']
@@ -281,6 +294,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": f"Error al obtener el incidente: {str(e)}"})
         }
 
@@ -297,6 +311,7 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 403,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": "Solo puedes actualizar tus propios incidentes"})
         }
 
@@ -307,6 +322,7 @@ def lambda_handler(event, context):
         if not isinstance(image_data, dict):
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "'evidencias' debe ser un objeto con 'file_base64'"})
             }
 
@@ -314,6 +330,7 @@ def lambda_handler(event, context):
         if not file_b64:
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": "'file_base64' es requerido en 'evidencias'"})
             }
 
@@ -322,12 +339,14 @@ def lambda_handler(event, context):
         except Exception as e:
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"message": f"file_base64 inválido: {e}"})
             }
 
         if not INCIDENTES_BUCKET:
             return {
                 "statusCode": 500,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"error": "INCIDENTES_BUCKET no configurado"})
             }
 
@@ -347,20 +366,24 @@ def lambda_handler(event, context):
             if code == "AccessDenied":
                 return {
                     "statusCode": 403,
+                    "headers": CORS_HEADERS,
                     "body": json.dumps({"error": "Acceso denegado al bucket"})
                 }
             if code == "NoSuchBucket":
                 return {
                     "statusCode": 400,
+                    "headers": CORS_HEADERS,
                     "body": json.dumps({"error": f"El bucket {INCIDENTES_BUCKET} no existe"})
                 }
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"error": f"Error S3: {e}"})
             }
         except Exception as e:
             return {
                 "statusCode": 500,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({"error": f"Error interno al subir la imagen: {e}"})
             }
 
@@ -409,6 +432,7 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
+            "headers": CORS_HEADERS,
             "body": json.dumps({
                 "message": "Incidente actualizado correctamente",
                 "incidente_id": incidente_id
@@ -423,5 +447,6 @@ def lambda_handler(event, context):
         )
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({"message": f"Error al actualizar el incidente: {str(e)}"})
         }
