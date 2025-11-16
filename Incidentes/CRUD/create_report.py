@@ -19,6 +19,24 @@ NIVEL_URGENCIA_ENUM = ["bajo", "medio", "alto", "critico"]
 ESTADO_ENUM = ["reportado", "en_progreso", "resuelto"]
 PISO_RANGO = range(-2, 12)
 
+def _to_dynamodb_numbers(obj):
+    """
+    Convierte recursivamente int/float -> Decimal.
+    Deja bool, None, str, Decimal, etc. tal cual.
+    Evita el error 'Float types are not supported'.
+    """
+    if isinstance(obj, dict):
+        return {k: _to_dynamodb_numbers(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_to_dynamodb_numbers(x) for x in obj]
+    if isinstance(obj, bool) or obj is None:
+        return obj
+    if isinstance(obj, Decimal):
+        return obj
+    if isinstance(obj, (int, float)):
+        return Decimal(str(obj))
+    return obj
+
 def lambda_handler(event, context):
     headers = event.get("headers") or {}
     auth_header = headers.get("Authorization") or headers.get("authorization") or ""
@@ -45,7 +63,8 @@ def lambda_handler(event, context):
             "body": json.dumps({"message": "No tienes permisos para crear un incidente"})
         }
     
-    body = json.loads(event.get('body', '{}'))
+    # 👇 IMPORTANTE: parse_float=Decimal para que no se creen floats
+    body = json.loads(event.get('body') or '{}', parse_float=Decimal)
     
     required_fields = [
         "titulo", "descripcion", "piso", "ubicacion", "tipo", "nivel_urgencia"
@@ -69,13 +88,23 @@ def lambda_handler(event, context):
             "statusCode": 400,
             "body": json.dumps({"message": "Valor de 'nivel_urgencia' no válido"})
         }
-    
-    if body["piso"] not in PISO_RANGO:
+
+    # Normalizar piso
+    try:
+        piso_val = int(body["piso"])
+    except (TypeError, ValueError):
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": "El campo 'piso' debe ser un número entero"})
+        }
+
+    if piso_val not in PISO_RANGO:
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "Valor de 'piso' debe estar entre -2 y 11"})
         }
 
+    # Coordenadas opcionales
     coordenadas = body.get("coordenadas")
     lat = lng = None
 
@@ -173,8 +202,8 @@ def lambda_handler(event, context):
         "incidente_id": incidente_id,
         "titulo": body["titulo"],
         "descripcion": body["descripcion"],
-        "piso": body["piso"],
-        "ubicacion": body["ubicacion"],
+        "piso": piso_val,
+        "ubicacion": body["ubicacion"],   # aquí puede venir x/y con decimales
         "tipo": body["tipo"],
         "nivel_urgencia": body["nivel_urgencia"],
         "evidencias": [evidencia_url] if evidencia_url else [],
@@ -189,6 +218,9 @@ def lambda_handler(event, context):
             "lat": lat,
             "lng": lng
         }
+
+    # 👇 ÚLTIMO PASO CLAVE: convertir cualquier int/float a Decimal (ubicacion.x/y, etc.)
+    incidente = _to_dynamodb_numbers(incidente)
     
     try:
         incidentes_table.put_item(Item=incidente)
@@ -200,6 +232,8 @@ def lambda_handler(event, context):
             })
         }
     except ClientError as e:
+        # Aquí también puedes loguear el item si quieres debug extra:
+        # print("ITEM QUE ROMPE:", incidente)
         return {
             "statusCode": 500,
             "body": json.dumps({"message": f"Error al crear el incidente: {str(e)}"})
