@@ -165,3 +165,31 @@ functions:
             resultTtlInSeconds: 0
             identitySource: method.request.header.Authorization
             type: token
+
+  actualizarEmpleado:
+    handler: CRUD/ActualizarEmpleado.lambda_handler
+    name: alerta-utec-usuarios-${sls:stage}-ActualizarEmpleado
+    events:
+      - http:
+          path: empleados/modificar
+          method: put
+          cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token
+
+  eliminarEmpleado:
+    handler: CRUD/EliminarEmpleado.lambda_handler
+    name: alerta-utec-usuarios-${sls:stage}-EliminarEmpleado
+    events:
+      - http:
+          path: empleados/eliminar
+          method: delete
+          cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token

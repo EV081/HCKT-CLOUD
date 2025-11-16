@@ -60,6 +60,18 @@ AUTHORITY_NAME = os.getenv("AUTHORITY_USUARIO_NOMBRE", "Autoridad UTEC")
 AUTHORITY_EMAIL = os.getenv("AUTHORITY_USUARIO_CORREO", "autoridad@utec.edu.pe")
 AUTHORITY_PASSWORD = os.getenv("AUTHORITY_USUARIO_CONTRASENA", "autoridad123")
 
+USUARIOS_TOTAL = int(os.getenv("USUARIOS_TOTAL", "30"))
+EMPLEADOS_TOTAL = int(os.getenv("EMPLEADOS_TOTAL", "50"))
+INCIDENTES_TOTAL = int(os.getenv("INCIDENTES_TOTAL", "20"))
+REGISTROS_TOTAL = int(os.getenv("REGISTROS_TOTAL", "10"))
+CONEXIONES_TOTAL = int(os.getenv("CONEXIONES_TOTAL", "10"))
+
+TIPOS_AREA = [
+    "mantenimiento", "electricidad", "limpieza",
+    "seguridad", "ti", "logistica", "otros"
+]
+ESTADOS_EMPLEADOS = ["activo", "inactivo"]
+
 
 def generar_correo(nombre):
     """Genera un correo electrónico basado en el nombre"""
@@ -73,9 +85,10 @@ def generar_telefono():
     return f"+51 9{random.randint(10000000, 99999999)}"
 
 
-def generar_usuarios(cantidad=10):
+def generar_usuarios(cantidad=None):
     usuarios = []
     roles_no_autoridad = ["estudiante", "personal_administrativo"]
+    objetivo = max(1, cantidad or USUARIOS_TOTAL)
     
     autoridad = {
         "correo": AUTHORITY_EMAIL,
@@ -86,53 +99,77 @@ def generar_usuarios(cantidad=10):
     usuarios.append(autoridad)
     correos_usados = {AUTHORITY_EMAIL}
     
-    objetivo = max(1, cantidad)
     while len(usuarios) < objetivo:
         nombre = random.choice(NOMBRES)
         correo = generar_correo(nombre)
         if correo in correos_usados:
             continue
-        usuario = {
+        usuarios.append({
             "correo": correo,
             "contrasena": f"hash_{uuid.uuid4().hex[:16]}",
             "nombre": nombre,
             "rol": random.choice(roles_no_autoridad)
-        }
-        usuarios.append(usuario)
+        })
         correos_usados.add(correo)
+    
+    if not any(u["rol"] == "estudiante" for u in usuarios):
+        while True:
+            nombre = random.choice(NOMBRES)
+            correo = generar_correo(nombre)
+            if correo in correos_usados:
+                continue
+            usuarios.append({
+                "correo": correo,
+                "contrasena": f"hash_{uuid.uuid4().hex[:16]}",
+                "nombre": nombre,
+                "rol": "estudiante"
+            })
+            correos_usados.add(correo)
+            break
     
     return usuarios
 
 
-def generar_empleados(cantidad=8):
-    """Genera datos de ejemplo para empleados"""
+def generar_empleados(cantidad=None):
     empleados = []
-    tipos_area = ["mantenimiento", "electricidad", "limpieza", "seguridad", "ti", "logistica", "otros"]
-    estados = ["activo", "inactivo"]
+    cantidad = max(1, cantidad or EMPLEADOS_TOTAL)
     
-    for i in range(cantidad):
+    base = cantidad // len(TIPOS_AREA)
+    residuo = cantidad % len(TIPOS_AREA)
+    plan = []
+    for idx, tipo in enumerate(TIPOS_AREA):
+        repeticiones = base + (1 if idx < residuo else 0)
+        plan.extend([tipo] * repeticiones)
+    if len(plan) > cantidad:
+        plan = plan[:cantidad]
+    
+    for tipo_area in plan:
         nombre = random.choice(NOMBRES)
-        empleado = {
+        empleados.append({
             "empleado_id": str(uuid.uuid4()),
             "nombre": nombre,
-            "tipo_area": random.choice(tipos_area),
-            "estado": random.choice(estados) if random.random() > 0.2 else "activo",  # 80% activos
+            "tipo_area": tipo_area,
+            "estado": random.choice(ESTADOS_EMPLEADOS) if random.random() > 0.2 else "activo",
             "contacto": {
                 "telefono": generar_telefono(),
                 "correo": generar_correo(nombre)
             }
-        }
-        empleados.append(empleado)
+        })
     
     return empleados
 
 
-def generar_incidentes(usuarios, cantidad=15):
+def generar_incidentes(usuarios, cantidad=None):
     """Genera datos de ejemplo para incidentes"""
     incidentes = []
+    cantidad = max(1, cantidad or INCIDENTES_TOTAL)
     tipos = ["limpieza", "TI", "seguridad", "mantenimiento", "otro"]
     niveles_urgencia = ["bajo", "medio", "alto", "critico"]
     estados = ["reportado", "en_progreso", "resuelto"]
+    
+    estudiantes = [u for u in usuarios if u.get("rol") == "estudiante"]
+    if not estudiantes:
+        raise ValueError("Se requieren usuarios con rol 'estudiante' para generar incidentes")
     
     for i in range(cantidad):
         creado_en = datetime.now() - timedelta(days=random.randint(0, 30))
@@ -153,7 +190,7 @@ def generar_incidentes(usuarios, cantidad=15):
                 f"https://storage.example.com/evidencias/{uuid.uuid4()}.jpg"
             ] if random.random() > 0.3 else [],
             "estado": random.choice(estados),
-            "usuario_correo": random.choice(usuarios)["correo"],
+            "usuario_correo": random.choice(estudiantes)["correo"],
             "creado_en": creado_en.isoformat()
         }
         
@@ -165,9 +202,10 @@ def generar_incidentes(usuarios, cantidad=15):
     return incidentes
 
 
-def generar_registros(cantidad=20):
+def generar_registros(cantidad=None):
     """Genera datos de ejemplo para registros (logs)"""
     registros = []
+    cantidad = max(1, cantidad or REGISTROS_TOTAL)
     niveles = ["INFO", "WARNING", "ERROR", "CRITICAL"]
     
     for i in range(cantidad):
@@ -191,9 +229,10 @@ def generar_registros(cantidad=20):
     return registros
 
 
-def generar_conexiones(usuarios, cantidad=12):
+def generar_conexiones(usuarios, cantidad=None):
     """Genera datos de ejemplo para conexiones WebSocket"""
     conexiones = []
+    cantidad = max(1, cantidad or CONEXIONES_TOTAL)
     
     for i in range(cantidad):
         fecha_conexion = datetime.now() - timedelta(minutes=random.randint(0, 120))
@@ -251,35 +290,35 @@ def main():
     
     # Generar usuarios primero (son referenciados por otros)
     print("📊 Generando usuarios...")
-    usuarios = generar_usuarios(10)
+    usuarios = generar_usuarios()
     validar_con_esquema(usuarios, "usuarios")
     guardar_json(usuarios, "usuarios.json")
     print()
     
     # Generar empleados
     print("📊 Generando empleados...")
-    empleados = generar_empleados(8)
+    empleados = generar_empleados()
     validar_con_esquema(empleados, "empleados")
     guardar_json(empleados, "empleados.json")
     print()
     
     # Generar incidentes (requiere usuarios)
     print("📊 Generando incidentes...")
-    incidentes = generar_incidentes(usuarios, 15)
+    incidentes = generar_incidentes(usuarios)
     validar_con_esquema(incidentes, "incidentes")
     guardar_json(incidentes, "incidentes.json")
     print()
     
     # Generar registros
     print("📊 Generando registros (logs)...")
-    registros = generar_registros(20)
+    registros = generar_registros()
     validar_con_esquema(registros, "logs")
     guardar_json(registros, "logs.json")
     print()
     
     # Generar conexiones (requiere usuarios)
     print("📊 Generando conexiones...")
-    conexiones = generar_conexiones(usuarios, 12)
+    conexiones = generar_conexiones(usuarios)
     validar_con_esquema(conexiones, "conexiones")
     guardar_json(conexiones, "conexiones.json")
     print()
