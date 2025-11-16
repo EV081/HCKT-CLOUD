@@ -1,29 +1,90 @@
-service: alerta-utec-usuarios
+service: usuarios
 
 provider:
   name: aws
-  runtime: python3.13
+  runtime: python3.12
+  memorySize: 512
+  timeout: 300
   region: us-east-1
-  memorySize: 256
-  timeout: 30
+  
+  environment:
+    TABLE_USUARIOS: ${env:TABLE_USUARIOS, 'TABLE_USUARIOS'}
+    JWT_SECRET: ${env:JWT_SECRET, 'clave-secreta-super-segura-cambiar-en-produccion'}
+    JWT_EXPIRATION_HOURS: ${env:JWT_EXPIRATION_HOURS, '24'}
+
   iam:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
-  environment:
-    TABLE_USUARIOS: ${env:TABLE_USUARIOS}
-    JWT_SECRET: ${env:JWT_SECRET}
-    JWT_EXPIRATION_HOURS: ${env:JWT_EXPIRATION_HOURS}
-  
+
   layers:
-    - ${cf:alerta-utec-dependencias-dev.PythonDependenciesLayerExport}
+    - Fn::ImportValue: Usuarios-Python-Dependencies-Layer
+
+package:
+  patterns:
+    - '!.git/**'
+    - '!.vscode/**'
+    - '!node_modules/**'
+    - '!__pycache__/**'
+    - '!*.pyc'
+    - '!requirements.txt'
+    - 'functions/**'
 
 functions:
-  # TODO: Implementar funciones Lambda
-  # - registrarUsuario
-  # - iniciarSesion
-  # - obtenerUsuario
-  # - actualizarUsuario
-  # - listarUsuarios
-  placeholder:
-    handler: handler.placeholder
-    description: Función placeholder hasta implementar el microservicio
+  authorizer:
+    handler: functions/Authorizer.lambda_handler
 
+  crear:
+    handler: functions/CrearUsuario.lambda_handler
+    events:
+      - http:
+          path: usuario/crear
+          method: post
+          cors: true
+          # Sin authorizer - endpoint público
+
+  login:
+    handler: functions/LoginUsuario.lambda_handler
+    events:
+      - http:
+          path: usuario/login
+          method: post
+          cors: true
+          # Sin authorizer - endpoint público
+
+  obtenerMiInfo:
+    handler: functions/MiUsuario.lambda_handler
+    events:
+      - http:
+          path: usuario/mi-info
+          method: get
+          cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token
+
+  modificar:
+    handler: functions/ModificarUsuario.lambda_handler
+    events:
+      - http:
+          path: usuario/modificar
+          method: put
+          cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token
+
+  eliminar:
+    handler: functions/EliminarUsuario.lambda_handler
+    events:
+      - http:
+          path: usuario/eliminar
+          method: delete
+          cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            type: token
