@@ -2,8 +2,6 @@ import json
 import boto3
 import os
 from CRUD.utils import generar_token, validar_token, ALLOWED_ROLES
-
-# --- NUEVO: imports y config de SendGrid ---
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 

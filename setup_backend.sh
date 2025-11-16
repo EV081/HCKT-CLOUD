@@ -39,9 +39,9 @@ check_env() {
 prepare_dependencies() {
     echo -e "\n${BLUE}📦 Preparando Lambda Layer de dependencias...${NC}"
     
-    # Crear estructura de directorios si no existe
-    mkdir -p Dependencias/python-dependencies/python
-    
+    # Crear estructura base si no existe
+    mkdir -p Dependencias/python-dependencies
+
     # Verificar si requirements.txt existe
     if [ ! -f "Dependencias/requirements.txt" ]; then
         echo -e "${RED}❌ No se encuentra Dependencias/requirements.txt${NC}"
@@ -49,15 +49,14 @@ prepare_dependencies() {
     fi
     
     cd Dependencias/python-dependencies
-    
-    # Verificar si ya existe la carpeta python con paquetes
-    if [ -d "python" ] && [ "$(ls -A python 2>/dev/null | wc -l)" -gt 5 ]; then
-        echo -e "${GREEN}✅ Dependencias ya están instaladas${NC}"
-    else
-        echo -e "${YELLOW}📥 Instalando dependencias Python...${NC}"
-        pip3 install -r ../requirements.txt -t python/ --upgrade --quiet
-        echo -e "${GREEN}✅ Dependencias instaladas en python-dependencies/python/${NC}"
-    fi
+
+    # 🔥 Siempre limpiar la carpeta python para forzar reinstalación
+    rm -rf python
+    mkdir -p python
+
+    echo -e "${YELLOW}📥 Instalando dependencias Python (forzado)...${NC}"
+    pip3 install -r ../requirements.txt -t python/ --upgrade --quiet
+    echo -e "${GREEN}✅ Dependencias instaladas en python-dependencies/python/${NC}"
     
     cd ../..
 }
