@@ -17,7 +17,12 @@ def _safe_int(v, default):
         return default
 
 def lambda_handler(event, context):
-    token = event.get("headers", {}).get("authorization", "").split(" ")[-1]
+    headers = event.get("headers") or {}
+    auth_header = headers.get("Authorization") or headers.get("authorization") or ""
+    if auth_header.lower().startswith("bearer "):
+        auth_header = auth_header.split(" ", 1)[1].strip()
+    token = auth_header
+
     resultado_validacion = validar_token(token)
     
     if not resultado_validacion.get("valido"):
