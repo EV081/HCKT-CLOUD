@@ -16,10 +16,14 @@ def lambda_handler(event, context):
     }
 
     # Obtener correo del query parameter
-    correo_solicitado = event.get("queryStringParameters", {}).get("correo", usuario_autenticado["correo"])
+    query_params = event.get("queryStringParameters") or {}
+    correo_solicitado = query_params.get("correo", usuario_autenticado["correo"])
 
     # Verificar permisos: un usuario solo puede ver su propia información
-    if usuario_autenticado["correo"] != correo_solicitado and usuario_autenticado["role"] != "admin":
+    es_mismo_usuario = usuario_autenticado["correo"] == correo_solicitado
+    es_autoridad = usuario_autenticado["role"] == "autoridad"
+
+    if not (es_mismo_usuario or es_autoridad):
         return {
             "statusCode": 403,
             "body": json.dumps({"message": "Solo puedes ver tu propia información"})

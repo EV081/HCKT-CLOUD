@@ -6,11 +6,16 @@ JWT_SECRET = os.getenv("JWT_SECRET", "qwertyuiopmnbvcxz12345lkjh09876gfd4567sa12
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = int(os.getenv("JWT_EXPIRATION_HOURS", "24"))
 
+ALLOWED_ROLES = {"estudiante", "personal_administrativo", "autoridad"}
+
 
 def generar_token(correo, role, nombre):
     """
     Genera un JWT como Spring Boot
     """
+    if role not in ALLOWED_ROLES:
+        raise ValueError("Rol inválido para token")
+    
     payload = {
         "correo": correo,
         "role": role,
@@ -41,11 +46,14 @@ def validar_token(token):
 
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        role = payload.get("role")
+        if role not in ALLOWED_ROLES:
+            return {"valido": False, "error": "Rol inválido en token"}
         
         return {
             "valido": True,
             "correo": payload.get("correo"),
-            "role": payload.get("role", "Cliente"),
+            "role": role,
             "nombre": payload.get("nombre", "")
         }
     except jwt.ExpiredSignatureError:

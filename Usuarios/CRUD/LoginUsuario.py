@@ -1,7 +1,7 @@
 import json
 import boto3
 import os
-from CRUD.utils import generar_token
+from CRUD.utils import generar_token, ALLOWED_ROLES
 
 TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS", "TABLE_USUARIOS")
 
@@ -47,6 +47,12 @@ def lambda_handler(event, context):
         }
 
     usuario = resp["Item"]
+    rol_usuario = usuario.get("rol")
+    if rol_usuario not in ALLOWED_ROLES:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"message": "Rol de usuario inválido"})
+        }
 
     # Verificar si la contraseña es correcta
     if usuario.get("contrasena") != contrasena:
@@ -58,7 +64,7 @@ def lambda_handler(event, context):
     # Generar el token JWT para el usuario autenticado
     token = generar_token(
         correo=usuario["correo"],
-        role=usuario.get("rol", "estudiante"),
+        role=rol_usuario,
         nombre=usuario.get("nombre", "")
     )
 
@@ -70,7 +76,7 @@ def lambda_handler(event, context):
             "usuario": {
                 "correo": usuario["correo"],
                 "nombre": usuario["nombre"],
-                "rol": usuario.get("rol", "estudiante")
+                "rol": rol_usuario
             }
         })
     }

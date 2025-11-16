@@ -3,7 +3,7 @@
   "title": "Usuarios",
   "type": "object",
   "x-dynamodb": {
-    "partition_key": "usuario_id"
+    "partition_key": "correo"
   },
   "properties": {
     "usuario_id": { "type": "string" },
@@ -11,13 +11,13 @@
       "type": "string",
       "format": "email"
     },
-    "contraseña": { "type": "string" },
+    "contrasena": { "type": "string" },
     "nombre": { "type": "string" },
     "rol": {
       "type": "string",
       "enum": ["estudiante", "personal_administrativo", "autoridad"]
     }
   },
-  "required": ["usuario_id", "correo", "nombre", "rol", "contraseña"],
+  "required": ["usuario_id", "correo", "nombre", "rol", "contrasena"],
   "additionalProperties": false
 }

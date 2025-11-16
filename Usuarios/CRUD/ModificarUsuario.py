@@ -23,27 +23,26 @@ def lambda_handler(event, context):
     usuario_autenticado = {
         "correo": authorizer.get("correo"),
         "role": authorizer.get("role"),
-        "usuario_id": authorizer.get("usuario_id")  # Aseguramos que el usuario_id esté disponible
     }
 
-    usuario_id = body.get("usuario_id")
-    if not usuario_id:
+    correo_objetivo = body.get("correo", usuario_autenticado["correo"])
+    if not correo_objetivo:
         return {
             "statusCode": 400,
-            "body": json.dumps({"message": "usuario_id es obligatorio"})
+            "body": json.dumps({"message": "correo es obligatorio"})
         }
 
-    # Verificar permisos: solo el usuario autenticado puede modificar su propio perfil
-    es_mismo_usuario = usuario_autenticado["usuario_id"] == usuario_id
-    
-    if not es_mismo_usuario:
+    es_mismo_usuario = usuario_autenticado["correo"] == correo_objetivo
+    es_autoridad = usuario_autenticado["role"] == "autoridad"
+
+    if not (es_mismo_usuario or es_autoridad):
         return {
             "statusCode": 403,
             "body": json.dumps({"message": "Solo puedes modificar tu propio perfil"})
         }
 
     # Obtener la información del usuario a actualizar
-    resp = usuarios_table.get_item(Key={"usuario_id": usuario_id})
+    resp = usuarios_table.get_item(Key={"correo": correo_objetivo})
     if "Item" not in resp:
         return {
             "statusCode": 404,
@@ -80,7 +79,7 @@ def lambda_handler(event, context):
     update_expr += ", ".join(updates)
 
     kwargs = {
-        "Key": {"usuario_id": usuario_id},
+        "Key": {"correo": correo_objetivo},
         "UpdateExpression": update_expr,
         "ExpressionAttributeValues": expr_attr_values,
         "ReturnValues": "ALL_NEW"
@@ -91,11 +90,13 @@ def lambda_handler(event, context):
 
     try:
         updated_item = usuarios_table.update_item(**kwargs)
+        usuario_actualizado = updated_item["Attributes"]
+        usuario_actualizado.pop("contrasena", None)
         return {
             "statusCode": 200,
             "body": json.dumps({
                 "message": "Usuario actualizado correctamente",
-                "usuario": updated_item["Attributes"]
+                "usuario": usuario_actualizado
             })
         }
     except Exception as e:
