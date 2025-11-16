@@ -6,6 +6,7 @@ import boto3
 from datetime import datetime, timezone
 from CRUD.utils import validar_token
 from botocore.exceptions import ClientError
+from decimal import Decimal, InvalidOperation
 
 dynamodb = boto3.resource('dynamodb')
 s3 = boto3.client('s3')
@@ -92,12 +93,12 @@ def lambda_handler(event, context):
             }
         
         try:
-            lat = float(coordenadas["lat"])
-            lng = float(coordenadas["lng"])
-        except (TypeError, ValueError):
+            lat = Decimal(str(coordenadas["lat"]))
+            lng = Decimal(str(coordenadas["lng"]))
+        except (InvalidOperation, TypeError, ValueError):
             return {
                 "statusCode": 400,
-                "body": json.dumps({"message": "'lat' y 'lng' deben ser números"})
+                "body": json.dumps({"message": "'lat' y 'lng' deben ser números válidos"})
             }
 
     incidente_id = str(uuid.uuid4())
