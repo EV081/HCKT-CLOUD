@@ -10,6 +10,7 @@ provider:
   iam:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
   environment:
+    TABLE_LOGS: ${env:TABLE_LOGS'}
     TABLE_INCIDENTES: ${env:TABLE_INCIDENTES}
     INCIDENTES_BUCKET: ${env:INCIDENTES_BUCKET, 'alerta-utec-incidentes-evidencias'}
     JWT_SECRET: ${env:JWT_SECRET}

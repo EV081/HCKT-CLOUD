@@ -6,16 +6,22 @@ from datetime import datetime, timezone
 from CRUD.utils import validar_token
 from botocore.exceptions import ClientError
 from decimal import Decimal, InvalidOperation
+import uuid 
 
 dynamodb = boto3.resource('dynamodb')
 s3 = boto3.client('s3')
+
 table_name = os.environ.get('TABLE_INCIDENTES')
 incidentes_table = dynamodb.Table(table_name)
 INCIDENTES_BUCKET = os.environ.get('INCIDENTES_BUCKET')
 
+logs_table_name = os.environ.get('TABLE_LOGS')
+logs_table = dynamodb.Table(logs_table_name) if logs_table_name else None
+
 TIPO_ENUM = ["limpieza", "TI" ,"seguridad", "mantenimiento", "otro"]
 NIVEL_URGENCIA_ENUM = ["bajo", "medio", "alto", "critico"]
 PISO_RANGO = range(-2, 12)
+
 
 def _to_dynamodb_numbers(obj):
     """
@@ -36,7 +42,93 @@ def _to_dynamodb_numbers(obj):
         return Decimal(str(obj))
     return obj
 
+
+def _guardar_log_en_dynamodb(registro):
+    """
+    Guarda el registro en la tabla de logs y lo imprime para CloudWatch.
+    Respeta el esquema de logs.
+    """
+    if not logs_table:
+        print("[LOG_WARNING] TABLE_LOGS no configurada, no se persiste el log.")
+        print("[LOG]", json.dumps(registro, default=str))
+        return
+
+    registro_ddb = _to_dynamodb_numbers(registro)
+
+    print("[LOG]", json.dumps(registro_ddb, default=str))
+
+    try:
+        logs_table.put_item(Item=registro_ddb)
+    except ClientError as e:
+        print("[LOG_ERROR] Error al guardar log en DynamoDB:", repr(e))
+
+
+def registrar_log_sistema(nivel, mensaje, servicio, contexto=None):
+    """
+    Crea un log de tipo 'sistema' siguiendo el esquema.
+    nivel: INFO | WARNING | ERROR | CRITICAL | AUDIT
+    """
+    if contexto is None:
+        contexto = {}
+
+    registro = {
+        "registro_id": str(uuid.uuid4()),
+        "nivel": nivel,
+        "tipo": "sistema",
+        "marca_tiempo": datetime.now(timezone.utc).isoformat(),
+        "detalles_sistema": {
+            "mensaje": mensaje,
+            "servicio": servicio,
+            "contexto": contexto
+        }
+    }
+
+    _guardar_log_en_dynamodb(registro)
+
+
+def registrar_log_auditoria(
+    usuario_correo,
+    entidad,
+    entidad_id,
+    operacion,
+    valores_previos=None,
+    valores_nuevos=None,
+    nivel="AUDIT"
+):
+    """
+    Crea un log de tipo 'auditoria' siguiendo el esquema.
+    operacion: creacion | actualizacion | eliminacion | consulta
+    """
+    if valores_previos is None:
+        valores_previos = {}
+    if valores_nuevos is None:
+        valores_nuevos = {}
+
+    registro = {
+        "registro_id": str(uuid.uuid4()),
+        "nivel": nivel,
+        "tipo": "auditoria",
+        "marca_tiempo": datetime.now(timezone.utc).isoformat(),
+        "detalles_auditoria": {
+            "usuario_correo": usuario_correo,
+            "entidad": entidad,
+            "entidad_id": entidad_id,
+            "operacion": operacion,
+            "valores_previos": valores_previos,
+            "valores_nuevos": valores_nuevos,
+        }
+    }
+
+    _guardar_log_en_dynamodb(registro)
+
 def lambda_handler(event, context):
+    registrar_log_sistema(
+        nivel="INFO",
+        mensaje="Inicio lambda actualizar incidente (estudiante)",
+        servicio="actualizar_incidencia",
+        contexto={"request_id": getattr(context, "aws_request_id", None)}
+    )
+
     headers = event.get("headers") or {}
     auth_header = headers.get("Authorization") or headers.get("authorization") or ""
     if auth_header.lower().startswith("bearer "):
@@ -45,6 +137,12 @@ def lambda_handler(event, context):
     resultado_validacion = validar_token(token)
 
     if not resultado_validacion.get("valido"):
+        registrar_log_sistema(
+            nivel="WARNING",
+            mensaje="Token inválido al actualizar incidente",
+            servicio="actualizar_incidencia",
+            contexto={"motivo": resultado_validacion.get("error")}
+        )
         return {
             "statusCode": 401,
             "body": json.dumps({"message": resultado_validacion.get("error")})
@@ -56,6 +154,15 @@ def lambda_handler(event, context):
     }
 
     if usuario_autenticado["rol"] != "estudiante":
+        registrar_log_sistema(
+            nivel="WARNING",
+            mensaje="Usuario sin permiso para actualizar incidente",
+            servicio="actualizar_incidencia",
+            contexto={
+                "correo": usuario_autenticado["correo"],
+                "rol": usuario_autenticado["rol"]
+            }
+        )
         return {
             "statusCode": 403,
             "body": json.dumps({"message": "No tienes permisos para actualizar un incidente"})
@@ -65,6 +172,12 @@ def lambda_handler(event, context):
 
     incidente_id = body.get("incidente_id")
     if not incidente_id:
+        registrar_log_sistema(
+            nivel="WARNING",
+            mensaje="Falta 'incidente_id' en el body",
+            servicio="actualizar_incidencia",
+            contexto={"body_recibido": body}
+        )
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "Falta 'incidente_id' en el body"})
@@ -82,6 +195,12 @@ def lambda_handler(event, context):
 
     for field in required_fields:
         if field not in body:
+            registrar_log_sistema(
+                nivel="WARNING",
+                mensaje=f"Falta el campo obligatorio: {field}",
+                servicio="actualizar_incidencia",
+                contexto={"body_recibido": body}
+            )
             return {
                 "statusCode": 400,
                 "body": json.dumps({"message": f"Falta el campo obligatorio: {field}"})
@@ -99,7 +218,15 @@ def lambda_handler(event, context):
             "body": json.dumps({"message": "Valor de 'nivel_urgencia' no válido"})
         }
 
-    if body["piso"] not in PISO_RANGO:
+    try:
+        piso_val = int(body["piso"])
+    except (TypeError, ValueError):
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": "El campo 'piso' debe ser un número entero"})
+        }
+
+    if piso_val not in PISO_RANGO:
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "Valor de 'piso' debe estar entre -2 y 11"})
@@ -133,18 +260,41 @@ def lambda_handler(event, context):
     try:
         response = incidentes_table.get_item(Key={'incidente_id': incidente_id})
         if 'Item' not in response:
+            registrar_log_sistema(
+                nivel="WARNING",
+                mensaje="Incidente no encontrado al actualizar",
+                servicio="actualizar_incidencia",
+                contexto={"incidente_id": incidente_id}
+            )
             return {
                 "statusCode": 404,
                 "body": json.dumps({"message": "Incidente no encontrado"})
             }
         incidente_actual = response['Item']
+        incidente_prev = dict(incidente_actual)
     except ClientError as e:
+        registrar_log_sistema(
+            nivel="ERROR",
+            mensaje="Error al obtener incidente de DynamoDB",
+            servicio="actualizar_incidencia",
+            contexto={"incidente_id": incidente_id, "error": str(e)}
+        )
         return {
             "statusCode": 500,
             "body": json.dumps({"message": f"Error al obtener el incidente: {str(e)}"})
         }
 
     if incidente_actual.get("usuario_correo") != usuario_autenticado["correo"]:
+        registrar_log_sistema(
+            nivel="WARNING",
+            mensaje="Usuario intenta actualizar incidente de otro usuario",
+            servicio="actualizar_incidencia",
+            contexto={
+                "incidente_id": incidente_id,
+                "usuario_correo": usuario_autenticado["correo"],
+                "owner_incidente": incidente_actual.get("usuario_correo")
+            }
+        )
         return {
             "statusCode": 403,
             "body": json.dumps({"message": "Solo puedes actualizar tus propios incidentes"})
@@ -189,7 +339,7 @@ def lambda_handler(event, context):
                 Bucket=INCIDENTES_BUCKET,
                 Key=key,
                 Body=file_bytes,
-               ContentType=content_type
+                ContentType=content_type
             )
             evidencia_url = f"s3://{INCIDENTES_BUCKET}/{key}"
         except ClientError as e:
@@ -217,7 +367,7 @@ def lambda_handler(event, context):
     incidente_actual.update({
         "titulo": body["titulo"],
         "descripcion": body["descripcion"],
-        "piso": body["piso"],
+        "piso": piso_val,
         "ubicacion": body["ubicacion"],
         "tipo": body["tipo"],
         "nivel_urgencia": body["nivel_urgencia"],
@@ -231,10 +381,32 @@ def lambda_handler(event, context):
             "lng": lng
         }
 
-    incidente_actual = _to_dynamodb_numbers(incidente_actual)
+    incidente_ddb = _to_dynamodb_numbers(incidente_actual)
 
     try:
-        incidentes_table.put_item(Item=incidente_actual)
+        incidentes_table.put_item(Item=incidente_ddb)
+
+        registrar_log_auditoria(
+            usuario_correo=usuario_autenticado["correo"],
+            entidad="incidente",
+            entidad_id=incidente_id,
+            operacion="actualizacion",
+            valores_previos=incidente_prev,
+            valores_nuevos=incidente_actual
+        )
+
+        registrar_log_sistema(
+            nivel="INFO",
+            mensaje="Incidente actualizado correctamente por estudiante",
+            servicio="actualizar_incidencia",
+            contexto={
+                "incidente_id": incidente_id,
+                "usuario_correo": usuario_autenticado["correo"],
+                "tipo": body["tipo"],
+                "nivel_urgencia": body["nivel_urgencia"]
+            }
+        )
+
         return {
             "statusCode": 200,
             "body": json.dumps({
@@ -243,6 +415,12 @@ def lambda_handler(event, context):
             })
         }
     except ClientError as e:
+        registrar_log_sistema(
+            nivel="ERROR",
+            mensaje="Error al actualizar incidente en DynamoDB",
+            servicio="actualizar_incidencia",
+            contexto={"incidente_id": incidente_id, "error": str(e)}
+        )
         return {
             "statusCode": 500,
             "body": json.dumps({"message": f"Error al actualizar el incidente: {str(e)}"})
