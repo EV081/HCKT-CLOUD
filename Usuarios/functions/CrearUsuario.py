@@ -5,7 +5,7 @@ import jwt
 import uuid
 from functions.utils import generar_token
 
-TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS", "TABLE_USUARIOS")
+TABLE_USUARIOS_NAME = os.getenv("TABLE_USUARIOS")
 
 dynamodb = boto3.resource("dynamodb")
 usuarios_table = dynamodb.Table(TABLE_USUARIOS_NAME)

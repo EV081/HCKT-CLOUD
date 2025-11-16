@@ -28,7 +28,7 @@ functions:
     events:
       - httpApi:
           method: POST
-          path: /incidentes
+          path: /incidentes/crear
           cors: true
     
   UpdateIncidenteUsuario: 
@@ -37,7 +37,7 @@ functions:
     events:
       - httpApi:
           method: PUT
-          path: /incidentes/{incidente_id}
+          path: /incidentes/update
           cors: true
 
   UpdateIncidenteAdmin: 
@@ -45,8 +45,8 @@ functions:
     description: Actualiza el estado de un incidente (admin)
     events:
       - httpApi:
-          method: PATCH
-          path: /incidentes/{incidente_id}/estado
+          method: PUT
+          path: incidentes/update_estado
           cors: true
 
   SearchIncidente:
@@ -54,8 +54,8 @@ functions:
     description: Busca un incidente por ID
     events:
       - httpApi:
-          method: GET 
-          path: /incidentes/{incidente_id}
+          method: POST 
+          path: /incidentes/buscar
           cors: true
 
   ListIncidentes:
@@ -63,8 +63,8 @@ functions:
     description: Lista incidentes con paginación
     events:
       - httpApi:
-          method: GET
-          path: /incidentes
+          method: POST
+          path: /incidentes/listar
           cors: true
 
 resources:

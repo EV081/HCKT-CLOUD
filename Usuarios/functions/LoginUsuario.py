@@ -58,7 +58,7 @@ def lambda_handler(event, context):
     # Generar el token JWT para el usuario autenticado
     token = generar_token(
         correo=usuario["correo"],
-        role=usuario.get("rol", "Cliente"),
+        role=usuario.get("rol", "estudiante"),
         nombre=usuario.get("nombre", "")
     )
 
@@ -70,7 +70,7 @@ def lambda_handler(event, context):
             "usuario": {
                 "correo": usuario["correo"],
                 "nombre": usuario["nombre"],
-                "rol": usuario.get("rol", "Cliente")
+                "rol": usuario.get("rol", "estudiante")
             }
         })
     }
