@@ -492,7 +492,7 @@ def create_all_resources():
             'KeySchema': [{'AttributeName': 'usuario_correo', 'KeyType': 'HASH'}],
             'Projection': {'ProjectionType': 'ALL'}
         }],
-        ttl_attribute='ttl'
+        ttl_attribute='expiracion_ttl'
     ):
         return False
     

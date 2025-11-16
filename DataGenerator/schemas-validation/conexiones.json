@@ -8,7 +8,10 @@
   "properties": {
     "conexion_id": { "type": "string" },
 
-    "usuario_id": { "type": "string" },
+    "usuario_correo": {
+      "type": "string",
+      "format": "email"
+    },
 
     "fecha_conexion": {
       "type": "string",
@@ -20,7 +23,12 @@
     }
   },
 
-  "required": ["conexion_id", "usuario_id", "fecha_conexion"],
+  "required": [
+    "conexion_id",
+    "usuario_correo",
+    "fecha_conexion",
+    "expiracion_ttl"
+  ],
 
   "additionalProperties": false
 }

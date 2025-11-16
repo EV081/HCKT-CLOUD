@@ -1,74 +1,74 @@
 [
   {
-    "conexion_id": "c2b9d1ef-e06b-4bb0-94be-0a65312f22c0",
-    "usuario_id": "cfc4c0b5-d96e-4b7b-8180-f04c34cc0dda",
-    "fecha_conexion": "2025-11-16T06:40:08.984286",
-    "expiracion_ttl": 1763282408
+    "conexion_id": "fea5bab9-dfc0-4261-be00-fbdc32081e55",
+    "usuario_correo": "pedro.flores@gmail.com",
+    "fecha_conexion": "2025-11-16T11:14:01.976103",
+    "expiracion_ttl": 1763298841
   },
   {
-    "conexion_id": "903fe3f1-9ee3-4455-99b0-7c08f280cd46",
-    "usuario_id": "1c722f6d-e7c6-4e93-9998-462b574c620d",
-    "fecha_conexion": "2025-11-16T05:40:08.984320",
-    "expiracion_ttl": 1763278808
+    "conexion_id": "d41d0755-1c6c-4a2c-bd62-19dfae69a507",
+    "usuario_correo": "pedro.flores@gmail.com",
+    "fecha_conexion": "2025-11-16T12:15:01.976140",
+    "expiracion_ttl": 1763302501
   },
   {
-    "conexion_id": "0310e358-c2b7-4476-b791-850c8daa8d4d",
-    "usuario_id": "ae2916b9-5175-4df1-8f47-03aa4e483fb6",
-    "fecha_conexion": "2025-11-16T06:38:08.984345",
-    "expiracion_ttl": 1763282288
+    "conexion_id": "39740fe6-0f06-4985-84cd-e65a55c8d6c5",
+    "usuario_correo": "carlos.lópez@utec.edu.pe",
+    "fecha_conexion": "2025-11-16T11:13:01.976178",
+    "expiracion_ttl": 1763298781
   },
   {
-    "conexion_id": "bcab5912-6ff7-45a8-875c-2b5b82484b3e",
-    "usuario_id": "cfc4c0b5-d96e-4b7b-8180-f04c34cc0dda",
-    "fecha_conexion": "2025-11-16T05:34:08.984365",
-    "expiracion_ttl": 1763278448
+    "conexion_id": "41e8836d-4024-43d9-a54f-7d5da6f9dd43",
+    "usuario_correo": "isabel.ramírez@outlook.com",
+    "fecha_conexion": "2025-11-16T11:11:01.976200",
+    "expiracion_ttl": 1763298661
   },
   {
-    "conexion_id": "814187e0-e5b9-4013-a443-3f402b0bdd6f",
-    "usuario_id": "786ca788-1683-4714-bc66-ed9952c0490a",
-    "fecha_conexion": "2025-11-16T05:12:08.984383",
-    "expiracion_ttl": 1763277128
+    "conexion_id": "98416b73-4666-470a-8e4a-21124bb629ae",
+    "usuario_correo": "miguel.torres@utec.edu.pe",
+    "fecha_conexion": "2025-11-16T12:12:01.976221",
+    "expiracion_ttl": 1763302321
   },
   {
-    "conexion_id": "f5fa5b8d-d47e-44ca-875c-0616bdcab3cc",
-    "usuario_id": "bc9dd667-b8c0-4046-a073-0b08c8c3ee93",
-    "fecha_conexion": "2025-11-16T05:05:08.984425",
-    "expiracion_ttl": 1763276708
+    "conexion_id": "29907a1a-d87e-428a-af22-ca679411347a",
+    "usuario_correo": "isabel.ramírez@utec.edu.pe",
+    "fecha_conexion": "2025-11-16T11:15:01.976241",
+    "expiracion_ttl": 1763298901
   },
   {
-    "conexion_id": "a3edf9b4-ceee-479c-8d44-0c84b38c4fd4",
-    "usuario_id": "ae2916b9-5175-4df1-8f47-03aa4e483fb6",
-    "fecha_conexion": "2025-11-16T06:36:08.984449",
-    "expiracion_ttl": 1763282168
+    "conexion_id": "f8fe3592-d480-4dcd-872f-db3be1789012",
+    "usuario_correo": "carlos.lópez@utec.edu.pe",
+    "fecha_conexion": "2025-11-16T10:28:01.976261",
+    "expiracion_ttl": 1763296081
   },
   {
-    "conexion_id": "77caa916-9f24-4102-97b0-1200de8c8207",
-    "usuario_id": "786ca788-1683-4714-bc66-ed9952c0490a",
-    "fecha_conexion": "2025-11-16T06:48:08.984467",
-    "expiracion_ttl": 1763282888
+    "conexion_id": "e7e83a99-a51e-44b6-87dd-8ac2092b2614",
+    "usuario_correo": "miguel.torres@utec.edu.pe",
+    "fecha_conexion": "2025-11-16T10:36:01.976271",
+    "expiracion_ttl": 1763296561
   },
   {
-    "conexion_id": "1cc6bbb1-24b0-4fec-a4c6-06d7d0a7e6e9",
-    "usuario_id": "c35db76b-f05f-497f-a508-c7306115cd75",
-    "fecha_conexion": "2025-11-16T05:42:08.984483",
-    "expiracion_ttl": 1763278928
+    "conexion_id": "46048d18-23e9-44a3-8601-7e9454f5dd3c",
+    "usuario_correo": "pedro.flores@gmail.com",
+    "fecha_conexion": "2025-11-16T11:03:01.976279",
+    "expiracion_ttl": 1763298181
   },
   {
-    "conexion_id": "1a654a6f-a3f1-4059-9827-3ca51bf3e505",
-    "usuario_id": "27a4ca43-0773-4823-9516-0b07c04f00bf",
-    "fecha_conexion": "2025-11-16T06:31:08.984498",
-    "expiracion_ttl": 1763281868
+    "conexion_id": "ff4ec5be-808f-447e-be00-6552e9cce965",
+    "usuario_correo": "josé.gonzález@outlook.com",
+    "fecha_conexion": "2025-11-16T11:44:01.976287",
+    "expiracion_ttl": 1763300641
   },
   {
-    "conexion_id": "9f777131-6ba0-442b-b5dc-35b238c5a5dc",
-    "usuario_id": "bc9dd667-b8c0-4046-a073-0b08c8c3ee93",
-    "fecha_conexion": "2025-11-16T05:19:08.984513",
-    "expiracion_ttl": 1763277548
+    "conexion_id": "b3b308a9-8846-41de-af7e-8557c1754445",
+    "usuario_correo": "carlos.lópez@utec.edu.pe",
+    "fecha_conexion": "2025-11-16T10:59:01.976295",
+    "expiracion_ttl": 1763297941
   },
   {
-    "conexion_id": "2975a2e8-797b-4419-a8ed-efc06715ebc2",
-    "usuario_id": "c35db76b-f05f-497f-a508-c7306115cd75",
-    "fecha_conexion": "2025-11-16T05:38:08.984530",
-    "expiracion_ttl": 1763278688
+    "conexion_id": "cd7c3ead-2d94-46ee-a71a-07c63681a03f",
+    "usuario_correo": "isabel.ramírez@utec.edu.pe",
+    "fecha_conexion": "2025-11-16T10:34:01.976305",
+    "expiracion_ttl": 1763296441
   }
 ]
