@@ -207,25 +207,52 @@ def generar_registros(cantidad=None):
     registros = []
     cantidad = max(1, cantidad or REGISTROS_TOTAL)
     niveles = ["INFO", "WARNING", "ERROR", "CRITICAL"]
+    operaciones = ["creacion", "actualizacion", "eliminacion", "consulta"]
+    correos_estandar = [
+        "auditoria@utec.edu.pe", "admin@utec.edu.pe",
+        "personal@utec.edu.pe", "estudiante@utec.edu.pe"
+    ]
     
     for i in range(cantidad):
-        nivel = random.choice(niveles)
+        tipo = random.choice(["sistema", "auditoria", "sistema", "sistema"])
+        nivel = "AUDIT" if tipo == "auditoria" else random.choice(niveles)
         servicio = random.choice(SERVICIOS)
-        
+
         registro = {
             "registro_id": str(uuid.uuid4()),
             "nivel": nivel,
-            "mensaje": random.choice(MENSAJES_LOG),
-            "servicio": servicio,
-            "contexto": {
-                "request_id": str(uuid.uuid4()),
-                "user_agent": "AWS Lambda",
-                "ip": f"192.168.{random.randint(1, 255)}.{random.randint(1, 255)}"
-            },
+            "tipo": tipo,
             "marca_tiempo": (datetime.now() - timedelta(hours=random.randint(0, 72))).isoformat()
         }
+
+        if tipo == "auditoria":
+            entidad = random.choice(["usuarios", "incidentes", "empleados", "conexiones"])
+            operacion = random.choice(operaciones)
+            registro["detalles_auditoria"] = {
+                "usuario_correo": random.choice(correos_estandar),
+                "entidad": entidad,
+                "entidad_id": str(uuid.uuid4()),
+                "operacion": operacion,
+                "valores_previos": {
+                    "estado": random.choice(["reportado", "en_progreso", "resuelto"])
+                } if operacion in {"actualizacion", "eliminacion"} else {},
+                "valores_nuevos": {
+                    "estado": random.choice(["reportado", "en_progreso", "resuelto"])
+                } if operacion in {"creacion", "actualizacion"} else {}
+            }
+        else:
+            registro["detalles_sistema"] = {
+                "mensaje": random.choice(MENSAJES_LOG),
+                "servicio": servicio,
+                "contexto": {
+                    "request_id": str(uuid.uuid4()),
+                    "user_agent": "AWS Lambda",
+                    "ip": f"192.168.{random.randint(1, 255)}.{random.randint(1, 255)}"
+                }
+            }
+
         registros.append(registro)
-    
+
     return registros
 
 

@@ -10,28 +10,76 @@
 
     "nivel": {
       "type": "string",
-      "enum": ["INFO", "WARNING", "ERROR", "CRITICAL"]
+      "enum": ["INFO", "WARNING", "ERROR", "CRITICAL", "AUDIT"]
     },
 
-    "mensaje": { "type": "string" },
+    "tipo": {
+      "type": "string",
+      "enum": ["sistema", "auditoria"]
+    },
 
-    "servicio": { "type": "string" },
+    "marca_tiempo": { "type": "string", "format": "date-time" },
 
-    "contexto": {
+    "detalles_sistema": {
       "type": "object",
-      "additionalProperties": true
+      "properties": {
+        "mensaje": { "type": "string" },
+        "servicio": { "type": "string" },
+        "contexto": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["mensaje", "servicio"],
+      "additionalProperties": false
     },
 
-    "marca_tiempo": { "type": "string", "format": "date-time" }
+    "detalles_auditoria": {
+      "type": "object",
+      "properties": {
+        "usuario_correo": { "type": "string", "format": "email" },
+        "entidad": { "type": "string" },
+        "entidad_id": { "type": "string" },
+        "operacion": {
+          "type": "string",
+          "enum": ["creacion", "actualizacion", "eliminacion", "consulta"]
+        },
+        "valores_previos": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "valores_nuevos": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["usuario_correo", "entidad", "entidad_id", "operacion"],
+      "additionalProperties": false
+    }
   },
 
   "required": [
     "registro_id",
     "nivel",
-    "mensaje",
-    "servicio",
+    "tipo",
     "marca_tiempo"
   ],
+
+  "if": {
+    "properties": {
+      "tipo": { "const": "auditoria" }
+    },
+    "required": ["tipo"]
+  },
+  "then": {
+    "required": ["detalles_auditoria"]
+  },
+  "else": {
+    "required": ["detalles_sistema"],
+    "properties": {
+      "detalles_auditoria": false
+    }
+  },
 
   "additionalProperties": false
 }

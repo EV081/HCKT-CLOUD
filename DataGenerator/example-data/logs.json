@@ -1,122 +1,156 @@
 [
   {
-    "registro_id": "891a50df-33e8-4ad9-bf0d-89f267d68a62",
+    "registro_id": "de42a9a7-36fb-477e-8327-662b5add3bfc",
     "nivel": "CRITICAL",
-    "mensaje": "Conexión establecida",
-    "servicio": "notificaciones",
-    "contexto": {
-      "request_id": "967cfd96-5db6-4366-9b14-47d8a03140b0",
-      "user_agent": "AWS Lambda",
-      "ip": "192.168.75.155"
-    },
-    "marca_tiempo": "2025-11-14T01:21:21.111746"
+    "tipo": "sistema",
+    "marca_tiempo": "2025-11-15T13:10:11.584518",
+    "detalles_sistema": {
+      "mensaje": "Servicio iniciado",
+      "servicio": "notificaciones",
+      "contexto": {
+        "request_id": "d92012b8-6cfb-4a0e-b442-d239e5d1d3dd",
+        "user_agent": "AWS Lambda",
+        "ip": "192.168.109.185"
+      }
+    }
   },
   {
-    "registro_id": "a752963f-ecf5-48d2-805b-ab6848975edf",
-    "nivel": "WARNING",
-    "mensaje": "Datos guardados correctamente",
-    "servicio": "usuarios",
-    "contexto": {
-      "request_id": "92ea9858-8941-4e46-a79b-0a392e9d0e5b",
-      "user_agent": "AWS Lambda",
-      "ip": "192.168.20.247"
-    },
-    "marca_tiempo": "2025-11-13T21:21:21.111785"
-  },
-  {
-    "registro_id": "d061c152-71a0-471e-8662-01a0092f1cf8",
-    "nivel": "WARNING",
-    "mensaje": "Error al procesar solicitud",
-    "servicio": "notificaciones",
-    "contexto": {
-      "request_id": "a88a677a-206d-4ecb-b790-b22ed3c9058b",
-      "user_agent": "AWS Lambda",
-      "ip": "192.168.65.71"
-    },
-    "marca_tiempo": "2025-11-14T14:21:21.111815"
-  },
-  {
-    "registro_id": "4921e7d8-83ee-4bc5-8502-dd5474d1ebea",
+    "registro_id": "82de77f1-d41a-45aa-b6d8-35824b8ccb12",
     "nivel": "INFO",
-    "mensaje": "Error de validación",
-    "servicio": "analitica",
-    "contexto": {
-      "request_id": "1fa760f0-65d2-429c-bb5d-c30d559d964e",
-      "user_agent": "AWS Lambda",
-      "ip": "192.168.188.19"
-    },
-    "marca_tiempo": "2025-11-16T00:21:21.111845"
+    "tipo": "sistema",
+    "marca_tiempo": "2025-11-16T14:10:11.584562",
+    "detalles_sistema": {
+      "mensaje": "Timeout en operación",
+      "servicio": "analitica",
+      "contexto": {
+        "request_id": "9cb46072-8a37-4660-af62-96798c700f9f",
+        "user_agent": "AWS Lambda",
+        "ip": "192.168.227.5"
+      }
+    }
   },
   {
-    "registro_id": "de619d07-f79d-4e1c-98b8-6506b418791e",
-    "nivel": "INFO",
-    "mensaje": "Usuario autenticado exitosamente",
-    "servicio": "incidentes",
-    "contexto": {
-      "request_id": "d95d5e59-8ec9-4d17-af90-46664027c060",
-      "user_agent": "AWS Lambda",
-      "ip": "192.168.176.39"
-    },
-    "marca_tiempo": "2025-11-15T03:21:21.111876"
-  },
-  {
-    "registro_id": "1848ddad-fd16-4653-8ce0-43cc92d2b608",
+    "registro_id": "b30239fe-0ab2-4ea2-b6ee-a719f1d6e980",
     "nivel": "CRITICAL",
-    "mensaje": "Operación completada",
-    "servicio": "incidentes",
-    "contexto": {
-      "request_id": "0e437162-c22f-4814-9352-a3379ed9c878",
-      "user_agent": "AWS Lambda",
-      "ip": "192.168.69.232"
-    },
-    "marca_tiempo": "2025-11-15T06:21:21.111900"
+    "tipo": "sistema",
+    "marca_tiempo": "2025-11-14T02:10:11.584597",
+    "detalles_sistema": {
+      "mensaje": "Error de validación",
+      "servicio": "incidentes",
+      "contexto": {
+        "request_id": "4b648f67-1601-4173-9d2b-2a83716933f7",
+        "user_agent": "AWS Lambda",
+        "ip": "192.168.203.23"
+      }
+    }
   },
   {
-    "registro_id": "04f3398d-8661-4a6d-a0da-9d3dec0be5ac",
-    "nivel": "INFO",
-    "mensaje": "Usuario autenticado exitosamente",
-    "servicio": "conexiones",
-    "contexto": {
-      "request_id": "a6403fce-8f5b-4af0-abb8-dd6b3132bac4",
-      "user_agent": "AWS Lambda",
-      "ip": "192.168.239.68"
-    },
-    "marca_tiempo": "2025-11-15T11:21:21.111914"
+    "registro_id": "269bf6c7-9d26-47cb-b9e4-5ed54f4459fa",
+    "nivel": "AUDIT",
+    "tipo": "auditoria",
+    "marca_tiempo": "2025-11-15T03:10:11.584627",
+    "detalles_auditoria": {
+      "usuario_correo": "admin@utec.edu.pe",
+      "entidad": "usuarios",
+      "entidad_id": "47615fbd-ac93-4882-84b1-bc714d3bd546",
+      "operacion": "creacion",
+      "valores_previos": {},
+      "valores_nuevos": {
+        "estado": "resuelto"
+      }
+    }
   },
   {
-    "registro_id": "2b724d94-7e40-423b-90b7-7879271d366f",
+    "registro_id": "ee17ef2c-3c03-4f1d-9607-4b2e93c4a21f",
+    "nivel": "AUDIT",
+    "tipo": "auditoria",
+    "marca_tiempo": "2025-11-15T14:10:11.584658",
+    "detalles_auditoria": {
+      "usuario_correo": "estudiante@utec.edu.pe",
+      "entidad": "usuarios",
+      "entidad_id": "ba255502-bef1-4b3d-82e8-0e7a0bffdd80",
+      "operacion": "consulta",
+      "valores_previos": {},
+      "valores_nuevos": {}
+    }
+  },
+  {
+    "registro_id": "58b7272a-a0e7-4c6d-99a9-e2110b1d40ab",
     "nivel": "ERROR",
-    "mensaje": "Usuario autenticado exitosamente",
-    "servicio": "notificaciones",
-    "contexto": {
-      "request_id": "4afd2b62-1dfc-4279-9e93-c196b0d77465",
-      "user_agent": "AWS Lambda",
-      "ip": "192.168.163.237"
-    },
-    "marca_tiempo": "2025-11-14T05:21:21.111927"
+    "tipo": "sistema",
+    "marca_tiempo": "2025-11-14T12:10:11.584675",
+    "detalles_sistema": {
+      "mensaje": "Operación completada",
+      "servicio": "usuarios",
+      "contexto": {
+        "request_id": "1e9102b1-ca11-48db-8da6-9b5d09203f44",
+        "user_agent": "AWS Lambda",
+        "ip": "192.168.176.16"
+      }
+    }
   },
   {
-    "registro_id": "6157024a-2a14-4850-b728-f5b94fd86af9",
-    "nivel": "CRITICAL",
-    "mensaje": "Usuario autenticado exitosamente",
-    "servicio": "analitica",
-    "contexto": {
-      "request_id": "9f2434fe-b997-4736-b38e-a24f3fab78c7",
-      "user_agent": "AWS Lambda",
-      "ip": "192.168.103.50"
-    },
-    "marca_tiempo": "2025-11-13T18:21:21.111940"
+    "registro_id": "a3368ae2-8583-4aa6-839a-7fa164dfdbc5",
+    "nivel": "AUDIT",
+    "tipo": "auditoria",
+    "marca_tiempo": "2025-11-16T09:10:11.584689",
+    "detalles_auditoria": {
+      "usuario_correo": "personal@utec.edu.pe",
+      "entidad": "incidentes",
+      "entidad_id": "f9c0127a-28d1-429d-a5f1-510f09946703",
+      "operacion": "eliminacion",
+      "valores_previos": {
+        "estado": "en_progreso"
+      },
+      "valores_nuevos": {}
+    }
   },
   {
-    "registro_id": "5429d3af-80e7-42d5-81b3-69edb2869571",
-    "nivel": "WARNING",
-    "mensaje": "Usuario autenticado exitosamente",
-    "servicio": "notificaciones",
-    "contexto": {
-      "request_id": "20f9629b-3ff2-44c3-9b50-379b241fe113",
-      "user_agent": "AWS Lambda",
-      "ip": "192.168.89.108"
-    },
-    "marca_tiempo": "2025-11-16T03:21:21.111970"
+    "registro_id": "ff0d642f-db3d-428a-b7b5-b538721b8d8f",
+    "nivel": "AUDIT",
+    "tipo": "auditoria",
+    "marca_tiempo": "2025-11-16T12:10:11.584703",
+    "detalles_auditoria": {
+      "usuario_correo": "admin@utec.edu.pe",
+      "entidad": "incidentes",
+      "entidad_id": "05687a44-d5fd-489d-96db-ce51ff3ed68c",
+      "operacion": "consulta",
+      "valores_previos": {},
+      "valores_nuevos": {}
+    }
+  },
+  {
+    "registro_id": "0d88c501-599b-4753-9f8c-6af059454b2c",
+    "nivel": "AUDIT",
+    "tipo": "auditoria",
+    "marca_tiempo": "2025-11-15T01:10:11.584717",
+    "detalles_auditoria": {
+      "usuario_correo": "admin@utec.edu.pe",
+      "entidad": "empleados",
+      "entidad_id": "abb477fd-72a9-48fa-bb55-735918cd6b0b",
+      "operacion": "actualizacion",
+      "valores_previos": {
+        "estado": "en_progreso"
+      },
+      "valores_nuevos": {
+        "estado": "en_progreso"
+      }
+    }
+  },
+  {
+    "registro_id": "f8b19465-b856-445b-b169-77295d808fde",
+    "nivel": "AUDIT",
+    "tipo": "auditoria",
+    "marca_tiempo": "2025-11-16T13:10:11.584732",
+    "detalles_auditoria": {
+      "usuario_correo": "auditoria@utec.edu.pe",
+      "entidad": "incidentes",
+      "entidad_id": "f94fc297-27e1-4e90-b955-ef572bf54988",
+      "operacion": "eliminacion",
+      "valores_previos": {
+        "estado": "en_progreso"
+      },
+      "valores_nuevos": {}
+    }
   }
 ]
