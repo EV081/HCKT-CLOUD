@@ -4,11 +4,31 @@ provider:
   name: aws
   runtime: python3.13
   region: us-east-1
+  iam:
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: false
+    layer: true
+    slim: true
+    strip: false
+    zip: true
+    useStaticCache: false
+    useDownloadCache: false
+    pipCmdExtraArgs:
+      - --platform manylinux2014_x86_64
+      - --implementation cp
+      - --python-version 3.13
+      - --only-binary=:all:
+      - --upgrade
 
 layers:
   pythonDependencies:
-    path: layer
-    name: ${self:service}-python-layer
+    name: ${self:provider.stage, 'dev'}-alerta-utec-python-dependencies
     description: Capa compartida con dependencias Python para todos los microservicios
     compatibleRuntimes:
       - python3.13
@@ -20,12 +40,12 @@ resources:
   Outputs:
     PythonDependenciesLayerArn:
       Value:
-        Ref: PythonDependenciesLambdaLayer
+        Ref: PythonRequirementsLambdaLayer
       Export:
-        Name: ${self:service}-PythonLayerArn
+        Name: AlertaUTEC-Python-Dependencies-Layer
     
     PythonDependenciesLayerVersion:
       Value:
-        Ref: PythonDependenciesLambdaLayer
+        Ref: PythonRequirementsLambdaLayer
       Export:
-        Name: ${self:service}-PythonLayerVersion
+        Name: AlertaUTEC-Python-Layer-Version

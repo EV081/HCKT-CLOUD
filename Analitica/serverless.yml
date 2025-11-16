@@ -14,7 +14,7 @@ provider:
     TABLE_EMPLEADOS: ${env:TABLE_EMPLEADOS}
   
   layers:
-    - ${cf:alerta-utec-dependencias-dev.PythonDependenciesLayerArn}
+    - ${cf:alerta-utec-dependencias-dev.AlertaUTECPythonDependenciesLayer}
 
 functions:
   # TODO: Implementar funciones Lambda

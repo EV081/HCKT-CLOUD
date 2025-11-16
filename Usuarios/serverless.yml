@@ -14,7 +14,7 @@ provider:
     JWT_EXPIRATION_HOURS: ${env:JWT_EXPIRATION_HOURS}
   
   layers:
-    - ${cf:alerta-utec-dependencias-dev.PythonDependenciesLayerArn}
+    - ${cf:alerta-utec-dependencias-dev.AlertaUTECPythonDependenciesLayer}
 
 functions:
   # TODO: Implementar funciones Lambda

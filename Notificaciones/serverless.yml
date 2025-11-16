@@ -12,7 +12,7 @@ provider:
     TABLE_CONEXIONES: ${env:TABLE_CONEXIONES}
   
   layers:
-    - ${cf:alerta-utec-dependencias-dev.PythonDependenciesLayerArn}
+    - ${cf:alerta-utec-dependencias-dev.AlertaUTECPythonDependenciesLayer}
 
 functions:
   # Funciones para WebSocket API
