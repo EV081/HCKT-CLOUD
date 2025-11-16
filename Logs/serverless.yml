@@ -1,4 +1,4 @@
-service: alerta-utec-incidentes
+service: alerta-utec-logs
 
 provider:
   name: aws
@@ -25,3 +25,10 @@ functions:
           method: post
           path: logs/listar
           cors: true
+
+resources:
+  Outputs:
+    LogsApiUrl:
+      Value: !Sub https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}
+      Export:
+        Name: ${self:service}-ApiUrl
