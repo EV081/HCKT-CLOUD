@@ -13,7 +13,7 @@ https://drive.google.com/file/d/1clMBabNp_SR7RyuozoejcUAui2koGZVz/view?usp=shari
   "contrasena": "autoridad123"
   }
   ```
-**Credenciales Personla**
+**Credenciales Personal**
   ```json
   {
   "correo": "miguel.torres@utec.edu.pe",
