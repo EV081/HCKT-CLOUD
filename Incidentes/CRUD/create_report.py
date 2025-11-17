@@ -28,6 +28,37 @@ NIVEL_URGENCIA_ENUM = ["bajo", "medio", "alto", "critico"]
 ESTADO_ENUM = ["reportado", "en_progreso", "resuelto"]
 PISO_RANGO = range(-2, 12)
 
+lambda_client = boto3.client("lambda")
+LAMBDA_NOTIFY_INCIDENTE = os.environ.get("LAMBDA_NOTIFY_INCIDENTE")
+
+def _notificar_incidente_ws(tipo, titulo, mensaje, incidente_id, destinatarios=None):
+    """
+    Invoca la Lambda de notificaciones por WebSocket (NotifyIncidente).
+    """
+    if not LAMBDA_NOTIFY_INCIDENTE:
+        print("LAMBDA_NOTIFY_INCIDENTE no configurado, no se envía notificación WS.")
+        return
+
+    payload = {
+        "tipo": tipo,
+        "titulo": titulo,
+        "mensaje": mensaje,
+        "incidente_id": incidente_id,
+    }
+
+    if destinatarios:
+        payload["destinatarios"] = destinatarios
+
+    try:
+        lambda_client.invoke(
+            FunctionName=LAMBDA_NOTIFY_INCIDENTE,
+            InvocationType="Event",
+            Payload=json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        )
+        print("Notificación WS disparada (crear incidente):", payload)
+    except Exception as e:
+        print("Error al invocar NotifyIncidente desde crear_incidencia:", repr(e))
+
 
 def _to_dynamodb_numbers(obj):
     """
@@ -436,6 +467,18 @@ def lambda_handler(event, context):
             correo_destino=usuario_autenticado["correo"],
             nombre=usuario_autenticado.get("nombre"),
             incidente=incidente
+        )
+
+        mensaje_notif = (
+            f"Se creó el incidente {incidente_id} en el piso {piso_val} "
+            f"con urgencia '{body['nivel_urgencia']}'."
+        )
+
+        _notificar_incidente_ws(
+            tipo="incidente_creado",
+            titulo="Nuevo incidente reportado",
+            mensaje=mensaje_notif,
+            incidente_id=incidente_id,
         )
 
         return {
