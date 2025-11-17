@@ -67,8 +67,8 @@ REGISTROS_TOTAL = int(os.getenv("REGISTROS_TOTAL", "10"))
 CONEXIONES_TOTAL = int(os.getenv("CONEXIONES_TOTAL", "10"))
 
 TIPOS_AREA = [
-    "mantenimiento", "electricidad", "limpieza",
-    "seguridad", "ti", "logistica", "otros"
+    "limpieza", "seguridad", "mantenimiento",
+    "electricidad", "ti", "logistica", "otro"
 ]
 ESTADOS_EMPLEADOS = ["activo", "inactivo"]
 
@@ -199,15 +199,10 @@ def generar_incidentes(usuarios, empleados, cantidad=None):
             "creado_en": creado_en.isoformat()
         }
         
-        # Asignar empleado solo si el estado es "en_progreso" o "resuelto"
+        # Asignar empleado_correo solo si el estado es "en_progreso" o "resuelto"
         if estado in ["en_progreso", "resuelto"] and empleados_activos:
             empleado = random.choice(empleados_activos)
-            incidente["empleado_asignado"] = {
-                "empleado_id": empleado["empleado_id"],
-                "nombre": empleado["nombre"],
-                "tipo_area": empleado["tipo_area"],
-                "telefono": empleado["contacto"]["telefono"]
-            }
+            incidente["empleado_correo"] = empleado["contacto"]["correo"]
         
         if tiene_actualizacion:
             incidente["actualizado_en"] = (creado_en + timedelta(hours=random.randint(1, 48))).isoformat()

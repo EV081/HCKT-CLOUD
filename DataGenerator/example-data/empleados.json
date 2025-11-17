@@ -1,502 +1,502 @@
 [
   {
-    "empleado_id": "ea1cdcd3-97bc-4c7f-87c4-3933612ab240",
-    "nombre": "María García",
-    "tipo_area": "mantenimiento",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 955420362",
-      "correo": "maría.garcía@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "6453c388-a9ba-49ac-bdce-924db783ee7a",
-    "nombre": "Sofía Castro",
-    "tipo_area": "mantenimiento",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 947157622",
-      "correo": "sofía.castro@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "a90d30e1-0138-4030-a110-e3e9d8d5f892",
-    "nombre": "Luis Rodríguez",
-    "tipo_area": "mantenimiento",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 984503321",
-      "correo": "luis.rodríguez@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "061a548f-a86f-4248-bc2e-8700c4162dfe",
-    "nombre": "Juan Pérez",
-    "tipo_area": "mantenimiento",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 956512071",
-      "correo": "juan.pérez@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "85e1893a-d4f3-4c31-90ff-fea98afd1a03",
-    "nombre": "Pedro Flores",
-    "tipo_area": "mantenimiento",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 947598811",
-      "correo": "pedro.flores@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "3ddd5539-b452-4d84-9666-1131b8e7010e",
-    "nombre": "Ana Martínez",
-    "tipo_area": "mantenimiento",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 910163416",
-      "correo": "ana.martínez@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "a5a71940-5a76-4f64-992a-6637a66f7e74",
+    "empleado_id": "42abc9ea-1c2d-4900-9388-6b486ae18d09",
     "nombre": "Isabel Ramírez",
-    "tipo_area": "mantenimiento",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 997901898",
-      "correo": "isabel.ramírez@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "b4ae49ca-0668-457b-b8b5-2248854944b1",
-    "nombre": "Juan Pérez",
-    "tipo_area": "mantenimiento",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 946696436",
-      "correo": "juan.pérez@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "7c2e6130-7a2f-44e2-9002-0f59a944ee8c",
-    "nombre": "José González",
-    "tipo_area": "electricidad",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 951121698",
-      "correo": "josé.gonzález@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "2f6abe31-9018-48f9-baf3-68671563b4a1",
-    "nombre": "Carmen Fernández",
-    "tipo_area": "electricidad",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 955348518",
-      "correo": "carmen.fernández@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "51e02440-71e8-486d-bbaa-e31bde3fb702",
-    "nombre": "Andrés Silva",
-    "tipo_area": "electricidad",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 966228867",
-      "correo": "andrés.silva@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "89d2e65f-7da0-404f-80e3-41ebc933d604",
-    "nombre": "Laura Sánchez",
-    "tipo_area": "electricidad",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 952912422",
-      "correo": "laura.sánchez@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "27d92b42-a6bb-4786-9b33-834f24d49e49",
-    "nombre": "Andrés Silva",
-    "tipo_area": "electricidad",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 998987809",
-      "correo": "andrés.silva@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "0dd7e2a4-1b9c-459a-a286-57a3bca4f723",
-    "nombre": "Carlos López",
-    "tipo_area": "electricidad",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 971625212",
-      "correo": "carlos.lópez@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "c7d2bf58-eca2-456b-91c3-eb1e39a0bb3e",
-    "nombre": "Diego Morales",
-    "tipo_area": "electricidad",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 914311228",
-      "correo": "diego.morales@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "90e587d0-d054-48e2-bed4-ed35dd020e72",
-    "nombre": "Luis Rodríguez",
-    "tipo_area": "limpieza",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 979820097",
-      "correo": "luis.rodríguez@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "74c81489-a613-447c-92c5-130eae9befba",
-    "nombre": "José González",
-    "tipo_area": "limpieza",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 925112660",
-      "correo": "josé.gonzález@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "2182e4e4-56d0-4383-8cce-9d44476eab94",
-    "nombre": "Valentina Ortiz",
     "tipo_area": "limpieza",
     "estado": "activo",
     "contacto": {
-      "telefono": "+51 954032308",
-      "correo": "valentina.ortiz@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "aabf73e7-062b-4507-9838-a1e0b50d0127",
-    "nombre": "Andrés Silva",
-    "tipo_area": "limpieza",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 910826435",
-      "correo": "andrés.silva@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "eb86266c-7e8d-4c9d-941c-3218d30d944b",
-    "nombre": "Carmen Fernández",
-    "tipo_area": "limpieza",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 920515245",
-      "correo": "carmen.fernández@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "d5d12b34-8a32-46fd-8b6a-14f5b5598dcc",
-    "nombre": "José González",
-    "tipo_area": "limpieza",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 997867901",
-      "correo": "josé.gonzález@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "a70116ef-1413-470c-ba26-bd4fdc9f0143",
-    "nombre": "Andrés Silva",
-    "tipo_area": "limpieza",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 914407886",
-      "correo": "andrés.silva@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "dc6b8a43-b612-42e7-8195-a46f7aeeb0a0",
-    "nombre": "Juan Pérez",
-    "tipo_area": "seguridad",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 948412539",
-      "correo": "juan.pérez@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "0e7eb088-9cd2-4fb9-b7f7-b64c937d0391",
-    "nombre": "Isabel Ramírez",
-    "tipo_area": "seguridad",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 948929611",
-      "correo": "isabel.ramírez@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "8a4d3e1a-e757-4842-a35d-85a7e51a4da0",
-    "nombre": "Diego Morales",
-    "tipo_area": "seguridad",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 976868875",
-      "correo": "diego.morales@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "92c0e3b4-1b50-44a5-9cae-9aa3a6a8a074",
-    "nombre": "Carmen Fernández",
-    "tipo_area": "seguridad",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 922628540",
-      "correo": "carmen.fernández@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "1d283ed5-5d5d-48e1-aae8-4b31dd5de2a0",
-    "nombre": "Miguel Torres",
-    "tipo_area": "seguridad",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 974789102",
-      "correo": "miguel.torres@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "84ba3225-2de8-4dea-95ad-78a6fd569d13",
-    "nombre": "Pedro Flores",
-    "tipo_area": "seguridad",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 988505227",
-      "correo": "pedro.flores@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "0c662758-d761-455a-94dd-3d14eca5fd15",
-    "nombre": "Juan Pérez",
-    "tipo_area": "seguridad",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 993518398",
-      "correo": "juan.pérez@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "e0b17bab-f6bd-4862-bdeb-d7d146c4e4ab",
-    "nombre": "Camila Rojas",
-    "tipo_area": "ti",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 957019267",
-      "correo": "camila.rojas@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "12ca89e7-2b7b-4aa7-b585-0ee0ee6148ea",
-    "nombre": "Miguel Torres",
-    "tipo_area": "ti",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 977520421",
-      "correo": "miguel.torres@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "a291e0b5-18aa-4dea-9a8a-b8c416bcc18d",
-    "nombre": "Valentina Ortiz",
-    "tipo_area": "ti",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 990264851",
-      "correo": "valentina.ortiz@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "920d130d-9c47-47bf-bdd9-559ff6bb2cad",
-    "nombre": "Juan Pérez",
-    "tipo_area": "ti",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 947342953",
-      "correo": "juan.pérez@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "bc2bbfa3-041e-41a3-93b9-e18fa569da9a",
-    "nombre": "Carmen Fernández",
-    "tipo_area": "ti",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 917279433",
-      "correo": "carmen.fernández@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "199a5256-223f-4641-b0d7-940652330267",
-    "nombre": "Sofía Castro",
-    "tipo_area": "ti",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 960513258",
-      "correo": "sofía.castro@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "3dd8dce6-a981-44bf-9196-d57a5693fa7f",
-    "nombre": "José González",
-    "tipo_area": "ti",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 969593188",
-      "correo": "josé.gonzález@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "270a10a7-471f-40fd-9f50-50ea08ab2db7",
-    "nombre": "Andrés Silva",
-    "tipo_area": "logistica",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 977049471",
-      "correo": "andrés.silva@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "8e45eb2d-f1d0-4f0e-8686-115330d08915",
-    "nombre": "Carlos López",
-    "tipo_area": "logistica",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 980390155",
-      "correo": "carlos.lópez@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "dd0b1af0-4d8f-49c3-b041-cb623b00626c",
-    "nombre": "Carmen Fernández",
-    "tipo_area": "logistica",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 971230479",
-      "correo": "carmen.fernández@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "a6075117-bccd-4042-a08a-30adf875cb83",
-    "nombre": "Ana Martínez",
-    "tipo_area": "logistica",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 919467060",
-      "correo": "ana.martínez@gmail.com"
-    }
-  },
-  {
-    "empleado_id": "70229418-63cc-4ce3-904f-44e8a37b96cd",
-    "nombre": "Ana Martínez",
-    "tipo_area": "logistica",
-    "estado": "inactivo",
-    "contacto": {
-      "telefono": "+51 988632332",
-      "correo": "ana.martínez@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "6c353a0b-7d30-4c7f-b3d3-2d5b5b551df9",
-    "nombre": "Sofía Castro",
-    "tipo_area": "logistica",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 976862982",
-      "correo": "sofía.castro@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "fba53430-a7ff-427e-833e-d35da410db2f",
-    "nombre": "Juan Pérez",
-    "tipo_area": "logistica",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 975726170",
-      "correo": "juan.pérez@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "7e829d1b-c7b9-4f51-81ec-35b33926835c",
-    "nombre": "Miguel Torres",
-    "tipo_area": "otros",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 916191372",
-      "correo": "miguel.torres@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "b716d429-b44e-48ff-a52c-9d54baf9726b",
-    "nombre": "Valentina Ortiz",
-    "tipo_area": "otros",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 926569996",
-      "correo": "valentina.ortiz@outlook.com"
-    }
-  },
-  {
-    "empleado_id": "095958a6-b001-40fe-8d03-40f4e59dbc39",
-    "nombre": "Miguel Torres",
-    "tipo_area": "otros",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 980124034",
-      "correo": "miguel.torres@utec.edu.pe"
-    }
-  },
-  {
-    "empleado_id": "51ca8ef9-dc18-4d27-9e5b-78718b33f6fe",
-    "nombre": "Isabel Ramírez",
-    "tipo_area": "otros",
-    "estado": "activo",
-    "contacto": {
-      "telefono": "+51 910415614",
+      "telefono": "+51 948024315",
       "correo": "isabel.ramírez@utec.edu.pe"
     }
   },
   {
-    "empleado_id": "cfafa420-7157-44b9-a177-44a4d40aca86",
-    "nombre": "Luis Rodríguez",
-    "tipo_area": "otros",
-    "estado": "inactivo",
+    "empleado_id": "1b602fa0-f575-4fa1-92d0-b84808ca9832",
+    "nombre": "Carmen Fernández",
+    "tipo_area": "limpieza",
+    "estado": "activo",
     "contacto": {
-      "telefono": "+51 925577161",
-      "correo": "luis.rodríguez@gmail.com"
+      "telefono": "+51 957652661",
+      "correo": "carmen.fernández@outlook.com"
     }
   },
   {
-    "empleado_id": "7a116020-f864-4d68-ae06-53bf42fa0ccc",
-    "nombre": "María García",
-    "tipo_area": "otros",
+    "empleado_id": "fb511ea6-8ffe-484c-a8d5-527063e9e99d",
+    "nombre": "Camila Rojas",
+    "tipo_area": "limpieza",
     "estado": "activo",
     "contacto": {
-      "telefono": "+51 942097101",
+      "telefono": "+51 983983542",
+      "correo": "camila.rojas@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "3349b85a-d2ba-4df0-a85b-cdf33e7c160a",
+    "nombre": "Camila Rojas",
+    "tipo_area": "limpieza",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 992447261",
+      "correo": "camila.rojas@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "88daa309-835c-4032-b4c7-da948f8b6cba",
+    "nombre": "Isabel Ramírez",
+    "tipo_area": "limpieza",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 985749650",
+      "correo": "isabel.ramírez@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "c09b417b-b067-4bd2-b6ab-cc3066772be7",
+    "nombre": "Isabel Ramírez",
+    "tipo_area": "limpieza",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 993892660",
+      "correo": "isabel.ramírez@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "1de2a8e4-ebb9-4698-b57a-e3a64ede34d5",
+    "nombre": "Valentina Ortiz",
+    "tipo_area": "limpieza",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 998624731",
+      "correo": "valentina.ortiz@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "8b1459f1-5aac-47bc-9395-06d22160dc48",
+    "nombre": "Camila Rojas",
+    "tipo_area": "limpieza",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 964985394",
+      "correo": "camila.rojas@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "42f98c00-5f60-4dff-8084-24bf660d80a0",
+    "nombre": "Juan Pérez",
+    "tipo_area": "seguridad",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 911411084",
+      "correo": "juan.pérez@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "de0f108e-1aa3-4341-aff9-8f1c6b82dcf7",
+    "nombre": "Pedro Flores",
+    "tipo_area": "seguridad",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 984999782",
+      "correo": "pedro.flores@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "d8c8a9f2-c705-4a0e-8576-9f1d2dfd021c",
+    "nombre": "Carmen Fernández",
+    "tipo_area": "seguridad",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 950818724",
+      "correo": "carmen.fernández@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "47a52a58-eaff-40ac-b81d-cc5d17e2bb6f",
+    "nombre": "Laura Sánchez",
+    "tipo_area": "seguridad",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 994621134",
+      "correo": "laura.sánchez@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "b704d46c-ee4c-4695-9353-b7affe92ef1c",
+    "nombre": "Pedro Flores",
+    "tipo_area": "seguridad",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 926543187",
+      "correo": "pedro.flores@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "1a17a242-8e7f-4f63-90e3-596ab6d98194",
+    "nombre": "María García",
+    "tipo_area": "seguridad",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 910285764",
       "correo": "maría.garcía@gmail.com"
     }
   },
   {
-    "empleado_id": "2d99770a-2b7b-4ece-aedf-24a3228f3223",
-    "nombre": "Andrés Silva",
-    "tipo_area": "otros",
+    "empleado_id": "998cfde4-953f-43c3-b5e9-196f2591d42c",
+    "nombre": "Valentina Ortiz",
+    "tipo_area": "seguridad",
     "estado": "inactivo",
     "contacto": {
-      "telefono": "+51 934284911",
-      "correo": "andrés.silva@outlook.com"
+      "telefono": "+51 939545621",
+      "correo": "valentina.ortiz@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "b4b22897-dd57-447a-a671-e161ae0a1d2f",
+    "nombre": "Carlos López",
+    "tipo_area": "mantenimiento",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 910643092",
+      "correo": "carlos.lópez@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "3d4fdbad-44b5-485d-851c-2a5b2d1cb8a1",
+    "nombre": "Carlos López",
+    "tipo_area": "mantenimiento",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 984162150",
+      "correo": "carlos.lópez@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "246b9592-5840-4cbf-abbf-dc280cfca5e1",
+    "nombre": "Isabel Ramírez",
+    "tipo_area": "mantenimiento",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 952653074",
+      "correo": "isabel.ramírez@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "efb1f2dc-cdb9-4c22-9194-e68020b8bb3d",
+    "nombre": "Carlos López",
+    "tipo_area": "mantenimiento",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 928383452",
+      "correo": "carlos.lópez@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "0dfea3a3-c6b5-47fe-bd0b-630d990ba61c",
+    "nombre": "Juan Pérez",
+    "tipo_area": "mantenimiento",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 923954186",
+      "correo": "juan.pérez@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "a8ec5cf7-30fd-4e3f-838e-7a09a4cbe70e",
+    "nombre": "José González",
+    "tipo_area": "mantenimiento",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 994303430",
+      "correo": "josé.gonzález@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "e38cf681-bba5-46ef-b00f-8fa88353c3d0",
+    "nombre": "José González",
+    "tipo_area": "mantenimiento",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 955945904",
+      "correo": "josé.gonzález@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "da3c2d04-ecbf-46d6-8774-ac588432277b",
+    "nombre": "Ana Martínez",
+    "tipo_area": "electricidad",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 925061932",
+      "correo": "ana.martínez@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "d48b6678-ef96-423c-b33e-7fd57d661565",
+    "nombre": "Carlos López",
+    "tipo_area": "electricidad",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 968603742",
+      "correo": "carlos.lópez@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "697c405b-cf81-42a2-86ee-84f95539c58f",
+    "nombre": "Juan Pérez",
+    "tipo_area": "electricidad",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 975704499",
+      "correo": "juan.pérez@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "8fe9be4d-d10f-4d14-80f4-26fe7165b0eb",
+    "nombre": "Luis Rodríguez",
+    "tipo_area": "electricidad",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 939571374",
+      "correo": "luis.rodríguez@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "968cebf3-8efb-4863-b236-d874f02b2c54",
+    "nombre": "Sofía Castro",
+    "tipo_area": "electricidad",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 994297092",
+      "correo": "sofía.castro@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "fbb16297-acdb-4855-b137-5739cd618e05",
+    "nombre": "Carlos López",
+    "tipo_area": "electricidad",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 964212795",
+      "correo": "carlos.lópez@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "c44dd37d-329d-4d63-b888-ef9f01d7ca0e",
+    "nombre": "Camila Rojas",
+    "tipo_area": "electricidad",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 940183593",
+      "correo": "camila.rojas@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "6984348d-83c3-4661-89d5-510454b8f309",
+    "nombre": "Carlos López",
+    "tipo_area": "ti",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 968069826",
+      "correo": "carlos.lópez@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "7b21ddb9-6e43-456f-88fa-b417f5a4fe96",
+    "nombre": "Carlos López",
+    "tipo_area": "ti",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 957459387",
+      "correo": "carlos.lópez@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "a3cdb6d8-a9e7-4db7-9d36-f65c6e6e61db",
+    "nombre": "Pedro Flores",
+    "tipo_area": "ti",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 911544418",
+      "correo": "pedro.flores@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "e8a6dcad-964f-42b4-bff9-caf04779d6c3",
+    "nombre": "Andrés Silva",
+    "tipo_area": "ti",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 934952877",
+      "correo": "andrés.silva@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "4db0177f-545d-40ad-abe9-15445ac63bc6",
+    "nombre": "Carmen Fernández",
+    "tipo_area": "ti",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 976766624",
+      "correo": "carmen.fernández@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "892ba00b-9c7e-4d7b-8a99-bef5c8626f60",
+    "nombre": "Laura Sánchez",
+    "tipo_area": "ti",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 971982367",
+      "correo": "laura.sánchez@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "36b025be-6309-44ba-9674-d35da877f91b",
+    "nombre": "Diego Morales",
+    "tipo_area": "ti",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 951795225",
+      "correo": "diego.morales@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "aecf05d4-7804-40d4-818a-6018f38dd935",
+    "nombre": "Isabel Ramírez",
+    "tipo_area": "logistica",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 931120351",
+      "correo": "isabel.ramírez@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "4debbefa-4433-42a5-8e2c-3961ffe18eb3",
+    "nombre": "Miguel Torres",
+    "tipo_area": "logistica",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 967123972",
+      "correo": "miguel.torres@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "e572a4c7-4638-4ee6-b62b-e9e0b87c800b",
+    "nombre": "Camila Rojas",
+    "tipo_area": "logistica",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 997693654",
+      "correo": "camila.rojas@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "edf3b5bc-482e-436c-ba89-1ac9713bb6be",
+    "nombre": "Carmen Fernández",
+    "tipo_area": "logistica",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 941832135",
+      "correo": "carmen.fernández@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "7bffe5fc-9928-4b2d-814b-aac4ac9c3952",
+    "nombre": "Isabel Ramírez",
+    "tipo_area": "logistica",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 921473368",
+      "correo": "isabel.ramírez@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "665b2f75-6229-43a4-afce-121ed3a75974",
+    "nombre": "Sofía Castro",
+    "tipo_area": "logistica",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 923153444",
+      "correo": "sofía.castro@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "16ec9801-5520-430c-be07-245fa111c24c",
+    "nombre": "Diego Morales",
+    "tipo_area": "logistica",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 977409525",
+      "correo": "diego.morales@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "e3a837ab-81d1-493d-981c-ace60c8768fb",
+    "nombre": "María García",
+    "tipo_area": "otro",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 915468396",
+      "correo": "maría.garcía@outlook.com"
+    }
+  },
+  {
+    "empleado_id": "38c41804-c8b6-4ab4-935e-ba40849b39ba",
+    "nombre": "Camila Rojas",
+    "tipo_area": "otro",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 984692998",
+      "correo": "camila.rojas@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "a7cafc52-9a42-4059-9325-a3fc8b8e8cae",
+    "nombre": "Sofía Castro",
+    "tipo_area": "otro",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 965897106",
+      "correo": "sofía.castro@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "d71aa380-23c0-42f0-9fbb-688c5d450d04",
+    "nombre": "José González",
+    "tipo_area": "otro",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 986903629",
+      "correo": "josé.gonzález@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "bfb634ab-d1c4-45c9-9061-1b8b1f214b90",
+    "nombre": "María García",
+    "tipo_area": "otro",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 963130506",
+      "correo": "maría.garcía@gmail.com"
+    }
+  },
+  {
+    "empleado_id": "c32f9a07-5c61-4f49-85e2-fbc6c89eabc8",
+    "nombre": "Camila Rojas",
+    "tipo_area": "otro",
+    "estado": "inactivo",
+    "contacto": {
+      "telefono": "+51 941379359",
+      "correo": "camila.rojas@utec.edu.pe"
+    }
+  },
+  {
+    "empleado_id": "27f0b420-487d-4621-bb6a-19f35290ab29",
+    "nombre": "Diego Morales",
+    "tipo_area": "otro",
+    "estado": "activo",
+    "contacto": {
+      "telefono": "+51 965176323",
+      "correo": "diego.morales@utec.edu.pe"
     }
   }
 ]

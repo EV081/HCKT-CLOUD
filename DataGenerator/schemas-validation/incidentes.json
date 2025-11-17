@@ -42,17 +42,7 @@
       "enum": ["reportado", "en_progreso", "resuelto"]
     },
 
-    "empleado_asignado": { 
-      "type": "object",
-      "properties": {
-        "empleado_id": { "type": "string" },
-        "nombre": { "type": "string" },
-        "tipo_area": { "type": "string" },
-        "telefono": { "type": "string" }
-      },
-      "required": ["empleado_id", "nombre", "tipo_area"],
-      "additionalProperties": false
-    },
+    "empleado_correo": { "type": "string" },
 
     "usuario_correo": { "type": "string" },
 

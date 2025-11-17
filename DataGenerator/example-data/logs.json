@@ -1,157 +1,153 @@
 [
   {
-    "registro_id": "eb4a829e-0870-4619-9a0c-93aca6658a5c",
-    "nivel": "AUDIT",
-    "tipo": "auditoria",
-    "marca_tiempo": "2025-11-15T09:01:02.409909",
-    "detalles_auditoria": {
-      "usuario_correo": "auditoria@utec.edu.pe",
-      "entidad": "empleados",
-      "entidad_id": "031d66e4-6d94-4f15-9313-0e742cd9912c",
-      "operacion": "actualizacion",
-      "valores_previos": {
-        "estado": "reportado"
-      },
-      "valores_nuevos": {
-        "estado": "resuelto"
+    "registro_id": "c15a8bbe-51ce-4432-87d2-dfcf2479bc18",
+    "nivel": "WARNING",
+    "tipo": "sistema",
+    "marca_tiempo": "2025-11-16T19:15:50.299128",
+    "detalles_sistema": {
+      "mensaje": "Error de validación",
+      "servicio": "notificaciones",
+      "contexto": {
+        "request_id": "db428c8b-d24e-456f-8280-138039c4485f",
+        "user_agent": "AWS Lambda",
+        "ip": "192.168.99.6"
       }
     }
   },
   {
-    "registro_id": "a30edbd4-4049-4320-bad2-e717ffb2ab66",
-    "nivel": "ERROR",
+    "registro_id": "a0e36583-0a5d-4904-a346-b3f5dfa8998f",
+    "nivel": "INFO",
     "tipo": "sistema",
-    "marca_tiempo": "2025-11-14T02:01:02.409957",
+    "marca_tiempo": "2025-11-14T22:15:50.299171",
     "detalles_sistema": {
       "mensaje": "Servicio iniciado",
       "servicio": "notificaciones",
       "contexto": {
-        "request_id": "a4832931-74e9-4993-9ea1-202772d8950e",
+        "request_id": "f197d49f-43dd-45b7-84af-aa3d0dde8687",
         "user_agent": "AWS Lambda",
-        "ip": "192.168.8.36"
+        "ip": "192.168.233.117"
       }
     }
   },
   {
-    "registro_id": "b01e8668-fcda-40b5-8a10-32cd924278ce",
-    "nivel": "ERROR",
+    "registro_id": "fffd1d0a-2953-432f-9e47-78bf0420ba58",
+    "nivel": "AUDIT",
+    "tipo": "auditoria",
+    "marca_tiempo": "2025-11-15T11:15:50.299204",
+    "detalles_auditoria": {
+      "usuario_correo": "admin@utec.edu.pe",
+      "entidad": "empleados",
+      "entidad_id": "4f9d28c2-1bd3-4a8e-ba4a-f33c13d79d7b",
+      "operacion": "consulta",
+      "valores_previos": {},
+      "valores_nuevos": {}
+    }
+  },
+  {
+    "registro_id": "2e7b029d-cb1f-4ba8-a557-7d72f322c4a0",
+    "nivel": "WARNING",
     "tipo": "sistema",
-    "marca_tiempo": "2025-11-15T05:01:02.409997",
+    "marca_tiempo": "2025-11-14T12:15:50.299235",
     "detalles_sistema": {
-      "mensaje": "Operación completada",
-      "servicio": "notificaciones",
+      "mensaje": "Error al procesar solicitud",
+      "servicio": "incidentes",
       "contexto": {
-        "request_id": "94ff4186-e494-4540-9476-3a5eb0444131",
+        "request_id": "021d687e-550f-4154-ae1d-734624e48ac5",
         "user_agent": "AWS Lambda",
-        "ip": "192.168.151.178"
+        "ip": "192.168.246.116"
       }
     }
   },
   {
-    "registro_id": "a0cb9b25-f6e3-4487-9a7d-23cfc7e51331",
+    "registro_id": "849ed261-44b4-46f2-b916-6091e1e3ab4b",
     "nivel": "INFO",
     "tipo": "sistema",
-    "marca_tiempo": "2025-11-16T17:01:02.410031",
+    "marca_tiempo": "2025-11-15T13:15:50.299267",
     "detalles_sistema": {
       "mensaje": "Timeout en operación",
       "servicio": "incidentes",
       "contexto": {
-        "request_id": "2c84dc6b-b8ed-4c73-abb5-6d757bdaa214",
+        "request_id": "c660ad2f-9cee-4cae-a70b-e95dc45e9365",
         "user_agent": "AWS Lambda",
-        "ip": "192.168.124.108"
+        "ip": "192.168.109.192"
       }
     }
   },
   {
-    "registro_id": "30ce893b-a08c-4a4a-b5c6-c5f057943296",
-    "nivel": "ERROR",
+    "registro_id": "99cdd5e0-2c8e-4523-b4ac-4fad6938c543",
+    "nivel": "WARNING",
     "tipo": "sistema",
-    "marca_tiempo": "2025-11-16T06:01:02.410059",
+    "marca_tiempo": "2025-11-14T01:15:50.299289",
     "detalles_sistema": {
       "mensaje": "Servicio iniciado",
-      "servicio": "usuarios",
-      "contexto": {
-        "request_id": "882e368b-7a61-4db9-9b39-85f3a60d3831",
-        "user_agent": "AWS Lambda",
-        "ip": "192.168.28.85"
-      }
-    }
-  },
-  {
-    "registro_id": "1381186c-99ab-47f2-8739-8b0755b3af87",
-    "nivel": "ERROR",
-    "tipo": "sistema",
-    "marca_tiempo": "2025-11-14T21:01:02.410075",
-    "detalles_sistema": {
-      "mensaje": "Timeout en operación",
       "servicio": "analitica",
       "contexto": {
-        "request_id": "b7dd4c50-b441-4d0a-ab54-34b4b3d8f224",
+        "request_id": "91ff55af-e41d-4721-80d8-50b3e10db3dd",
         "user_agent": "AWS Lambda",
-        "ip": "192.168.140.182"
+        "ip": "192.168.49.132"
       }
     }
   },
   {
-    "registro_id": "4abb170b-ae4f-4d75-a577-c9ac03120ab4",
-    "nivel": "INFO",
-    "tipo": "sistema",
-    "marca_tiempo": "2025-11-15T10:01:02.410088",
-    "detalles_sistema": {
-      "mensaje": "Error al procesar solicitud",
-      "servicio": "conexiones",
-      "contexto": {
-        "request_id": "166d6b22-abff-4985-92aa-a7cdd71f468a",
-        "user_agent": "AWS Lambda",
-        "ip": "192.168.63.157"
-      }
-    }
-  },
-  {
-    "registro_id": "36206135-d706-4d4d-b12a-49c1abef6be3",
-    "nivel": "INFO",
-    "tipo": "sistema",
-    "marca_tiempo": "2025-11-15T17:01:02.410101",
-    "detalles_sistema": {
-      "mensaje": "Error de validación",
-      "servicio": "analitica",
-      "contexto": {
-        "request_id": "f26232c2-cd1c-4128-88a7-760baec1c218",
-        "user_agent": "AWS Lambda",
-        "ip": "192.168.110.8"
-      }
-    }
-  },
-  {
-    "registro_id": "a694fc85-f151-44f2-af83-28f2525fe11b",
+    "registro_id": "baa63f89-92a9-479e-b5ce-d10be46ae242",
     "nivel": "AUDIT",
     "tipo": "auditoria",
-    "marca_tiempo": "2025-11-14T01:01:02.410114",
+    "marca_tiempo": "2025-11-15T07:15:50.299302",
     "detalles_auditoria": {
-      "usuario_correo": "estudiante@utec.edu.pe",
-      "entidad": "incidentes",
-      "entidad_id": "a3d8af2a-b866-4016-b757-70956892ab70",
+      "usuario_correo": "admin@utec.edu.pe",
+      "entidad": "empleados",
+      "entidad_id": "923b2151-e5a1-41c1-a240-16530abcb320",
       "operacion": "actualizacion",
       "valores_previos": {
         "estado": "en_progreso"
       },
       "valores_nuevos": {
-        "estado": "en_progreso"
+        "estado": "reportado"
       }
     }
   },
   {
-    "registro_id": "d5ac04b5-9b4b-4d58-bafc-2668ef16f340",
+    "registro_id": "fe06bf38-d872-4690-aa13-df3570a8e3bd",
+    "nivel": "WARNING",
+    "tipo": "sistema",
+    "marca_tiempo": "2025-11-15T03:15:50.299318",
+    "detalles_sistema": {
+      "mensaje": "Servicio iniciado",
+      "servicio": "usuarios",
+      "contexto": {
+        "request_id": "e85b8365-4f4b-4dd8-85d5-1d9fe202f010",
+        "user_agent": "AWS Lambda",
+        "ip": "192.168.206.118"
+      }
+    }
+  },
+  {
+    "registro_id": "d0b4c27c-bdf4-40e5-915f-e719ce5ed8b9",
     "nivel": "CRITICAL",
     "tipo": "sistema",
-    "marca_tiempo": "2025-11-16T03:01:02.410129",
+    "marca_tiempo": "2025-11-15T17:15:50.299332",
+    "detalles_sistema": {
+      "mensaje": "Error al procesar solicitud",
+      "servicio": "usuarios",
+      "contexto": {
+        "request_id": "fcd6ef63-b7ad-4cdd-a343-81919d3af61f",
+        "user_agent": "AWS Lambda",
+        "ip": "192.168.122.13"
+      }
+    }
+  },
+  {
+    "registro_id": "b8e30d5b-80bc-4b6e-83ce-ad52ae53dc28",
+    "nivel": "INFO",
+    "tipo": "sistema",
+    "marca_tiempo": "2025-11-15T19:15:50.299345",
     "detalles_sistema": {
       "mensaje": "Operación completada",
-      "servicio": "conexiones",
+      "servicio": "analitica",
       "contexto": {
-        "request_id": "242c2bf8-8fbe-4ac0-b6f0-dcf9bc5bd8b6",
+        "request_id": "847dfb59-8b18-4f0a-9762-9281aa8e35cc",
         "user_agent": "AWS Lambda",
-        "ip": "192.168.171.3"
+        "ip": "192.168.50.29"
       }
     }
   }
