@@ -1,6 +1,8 @@
 ### Alerta UTEC
 
 Este documento proporciona una guía rápida del proyecto **Alerta UTEC** y muestra cómo usar los servicios incluidos en la colección de Postman adjunta. Atención: el despliegue no se realiza con `sls deploy` de forma directa — vea la sección de despliegue.
+**Arquitectura de Solución**
+https://drive.google.com/file/d/1clMBabNp_SR7RyuozoejcUAui2koGZVz/view?usp=sharing
 
 ### Variables de entorno (breve)
 
