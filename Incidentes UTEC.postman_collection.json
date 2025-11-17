@@ -1,9 +1,10 @@
-{
+ {
 	"info": {
-		"_postman_id": "5d5ed613-bf32-4e6c-809d-1f315c1045c6",
+		"_postman_id": "44f05e2d-97f8-4b08-8491-c13e509800bd",
 		"name": "Incidentes UTEC",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "43507435"
+		"_exporter_id": "43509885",
+		"_collection_link": "https://dark-sunset-246817.postman.co/workspace/DBP~16941fd4-2fc3-45ac-91eb-0146a2c045ea/collection/43509885-44f05e2d-97f8-4b08-8491-c13e509800bd?action=share&source=collection_link&creator=43509885"
 	},
 	"item": [
 		{
@@ -44,7 +45,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nombre\": \"Elmer Villegas\",\n    \"correo\": \"elmer.villegas@utec.edu.pe\",\n    \"contrasena\": \"elmer123\"\n}",
+							"raw": "{\n    \"nombre\": \"Yaritza Lopez\",\n    \"correo\": \"yartiza.lopez@utec.edu.pe\",\n    \"contrasena\": \"yaritza123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -721,6 +722,20 @@
 				},
 				{
 					"name": "Crear empleado (P.A. o Autoridad)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const data = pm.response.json();\r",
+									"pm.collectionVariables.set(\"empleado_id\", data.empleado.empleado_id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -807,181 +822,9 @@
 						}
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "Incidentes",
-			"item": [
-				{
-					"name": "Crear Incidente (Estudiante)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Crear incidente 201\", function () { pm.response.to.have.status(201); });",
-									"const data = pm.response.json();",
-									"if (data.incidente_id) { pm.collectionVariables.set(\"incidente_id\", data.incidente_id); }"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token_estudiante}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"titulo\": \"Fuga de agua en baño del 2er piso\",\n    \"descripcion\": \"Se detectó una fuga de agua constante en el baño del 2er piso, cerca del aula 205.\",\n    \"piso\": 3,\n    \"ubicacion\": {\n      \"x\": -76.55,\n      \"y\": -12.78\n    },\n    \"tipo\": \"mantenimiento\",\n    \"nivel_urgencia\": \"medio\",\n    \"evidencias\": {\n            \"file_base64\" : \"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\" \n    }\n  }",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baserUrl_incidentes}}/incidentes/crear",
-							"host": [
-								"{{baserUrl_incidentes}}"
-							],
-							"path": [
-								"incidentes",
-								"crear"
-							]
-						}
-					},
-					"response": []
 				},
 				{
-					"name": "Actualizar Incidente (Estudiante)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Actualizar incidente 200\", function () { pm.response.to.have.status(200); });"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token_estudiante}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"incidente_id\": \"{{incidente_id}}\",\n  \"titulo\": \"Fuga de agua actualizada\",\n  \"descripcion\": \"Actualización del incidente por el estudiante.\",\n  \"piso\": 3,\n  \"ubicacion\": {\n    \"x\": -76.88,\n    \"y\": -12.88\n  },\n  \"tipo\": \"mantenimiento\",\n  \"nivel_urgencia\": \"medio\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baserUrl_incidentes}}/incidentes/update",
-							"host": [
-								"{{baserUrl_incidentes}}"
-							],
-							"path": [
-								"incidentes",
-								"update"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Actualizar Estado de Incidente (Personal)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Actualizar estado 200\", function () { pm.response.to.have.status(200); });"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token_personal}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"incidente_id\": \"{{incidente_id}}\",\n  \"estado\": \"resuelto\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baserUrl_incidentes}}/incidentes/update_estado",
-							"host": [
-								"{{baserUrl_incidentes}}"
-							],
-							"path": [
-								"incidentes",
-								"update_estado"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Buscar Incidente (Autoridad)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Buscar incidente 200\", function () { pm.response.to.have.status(200); });",
-									"const data = pm.response.json();",
-									"pm.test(\"Incluye correo\", function () { pm.expect(data.incidente).to.have.property('usuario_correo'); });"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
+					"name": "Actualizar empleado (P.A. o Autoridad)",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -993,11 +836,11 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"incidente_id\": \"{{incidente_id}}\"\n}",
+							"raw": "{\r\n  \"empleado_id\": \"{{empleado_id}}\",\r\n  \"nombre\": \"Técnico Soporte\",\r\n  \"tipo_area\": \"ti\",\r\n  \"estado\": \"activo\",\r\n  \"contacto\": {\r\n    \"telefono\": \"+51 900000001\",\r\n    \"correo\": \"soporte.ti@utec.edu.pe\"\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1005,91 +848,20 @@
 							}
 						},
 						"url": {
-							"raw": "{{baserUrl_incidentes}}/incidentes/buscar",
+							"raw": "{{baserUrl_usuarios}}/empleados/modificar",
 							"host": [
-								"{{baserUrl_incidentes}}"
+								"{{baserUrl_usuarios}}"
 							],
 							"path": [
-								"incidentes",
-								"buscar"
+								"empleados",
+								"modificar"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Listar Incidentes (Estudiante)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Listar estudiante 200\", function () { pm.response.to.have.status(200); });",
-									"const data = pm.response.json();",
-									"if (Array.isArray(data.contents) && data.contents.length) {",
-									"  pm.test(\"Sin correo ajeno\", function () { pm.expect(data.contents[0]).to.not.have.property('usuario_correo'); });",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token_estudiante}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{ \n    \"page\": 0, \n    \"size\": 10, \n    \"estado\": \"resuelto\" \n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baserUrl_incidentes}}/incidentes/listar",
-							"host": [
-								"{{baserUrl_incidentes}}"
-							],
-							"path": [
-								"incidentes",
-								"listar"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Listar Incidentes (Autoridad)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Listar autoridad 200\", function () { pm.response.to.have.status(200); });",
-									"const data = pm.response.json();",
-									"if (Array.isArray(data.contents) && data.contents.length) {",
-									"  pm.test(\"Incluye correo\", function () { pm.expect(data.contents[0]).to.have.property('usuario_correo'); });",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
+					"name": "Eliminar empleado (P.A o Autoridad)",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1101,11 +873,11 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "DELETE",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{ \n    \"page\": 0, \n    \"size\": 10, \n    \"estado\": \"en_progreso\" \n}\n",
+							"raw": "{\r\n    \"empleado_id\": \"{{empleado_id}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1113,50 +885,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{baserUrl_incidentes}}/incidentes/listar",
+							"raw": "{{baserUrl_usuarios}}/empleados/eliminar",
 							"host": [
-								"{{baserUrl_incidentes}}"
+								"{{baserUrl_usuarios}}"
 							],
 							"path": [
-								"incidentes",
-								"listar"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Historial de Incidentes (Estudiante)",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token_estudiante}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{ \n    \"page\": 0, \n    \"size\": 10, \n    \"estado\": \"resuelto\" \n}\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baserUrl_incidentes}}/incidentes/historial",
-							"host": [
-								"{{baserUrl_incidentes}}"
-							],
-							"path": [
-								"incidentes",
-								"historial"
+								"empleados",
+								"eliminar"
 							]
 						}
 					},
@@ -1166,49 +901,95 @@
 		},
 		{
 			"name": "Analitica",
-			"item": []
-		},
-		{
-			"name": "Logs",
 			"item": [
 				{
-					"name": "Listar Logs",
+					"name": "Iniciar Airrflow",
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token_personal}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"size\": 10\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "https://a5t8gzxz2f.execute-api.us-east-1.amazonaws.com/dev/logs/listar",
-							"protocol": "https",
+							"raw": "{{baserUrl_analitica}}/analitica/trigger-etl",
 							"host": [
-								"a5t8gzxz2f",
-								"execute-api",
-								"us-east-1",
-								"amazonaws",
-								"com"
+								"{{baserUrl_analitica}}"
 							],
 							"path": [
-								"dev",
-								"logs",
-								"listar"
+								"analitica",
+								"trigger-etl"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "incidentes-por-piso",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_analitica}}/analitica/incidentes-por-piso",
+							"host": [
+								"{{baserUrl_analitica}}"
+							],
+							"path": [
+								"analitica",
+								"incidentes-por-piso"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "incidentes-por-tipo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_analitica}}/analitica/incidentes-por-tipo",
+							"host": [
+								"{{baserUrl_analitica}}"
+							],
+							"path": [
+								"analitica",
+								"incidentes-por-tipo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tiempo-resolucion",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_analitica}}/analitica/tiempo-resolucion",
+							"host": [
+								"{{baserUrl_analitica}}"
+							],
+							"path": [
+								"analitica",
+								"tiempo-resolucion"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reportes-por-usuario",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baserUrl_analitica}}/analitica/reportes-por-usuario",
+							"host": [
+								"{{baserUrl_analitica}}"
+							],
+							"path": [
+								"analitica",
+								"reportes-por-usuario"
 							]
 						}
 					},
@@ -1222,21 +1003,11 @@
 				{
 					"name": "Notificar actualizacion de incidente",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token_estudiante}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"tipo\": \"incidente_actualizado\",\r\n  \"titulo\": \"Incidente actualizado\",\r\n  \"mensaje\": \"El incidente INC-123 fue actualizado correctamente.\",\r\n  \"incidente_id\": \"INC-123\"\r\n}\r\n",
+							"raw": "{\r\n  \"incidente_id\": \"INC-001\",\r\n  \"estado\": \"EN_PROCESO\",\r\n  \"destinatarios\": [\"{{correo_estudiante}}\"],\r\n  \"datos\": {\r\n    \"mensaje\": \"Prueba de notificación\"\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1297,6 +1068,10 @@
 			"value": ""
 		},
 		{
+			"key": "baserUrl_notificaciones",
+			"value": ""
+		},
+		{
 			"key": "token_estudiante",
 			"value": ""
 		},
@@ -1346,6 +1121,10 @@
 		},
 		{
 			"key": "usuarios_last_key",
+			"value": ""
+		},
+		{
+			"key": "empleado_id",
 			"value": ""
 		}
 	]
