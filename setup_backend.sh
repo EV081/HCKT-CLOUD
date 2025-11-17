@@ -84,6 +84,29 @@ ensure_analitica_bucket() {
   fi
 }
 
+ensure_incidentes_bucket() {
+  if [ -z "${INCIDENTES_BUCKET}" ]; then
+    echo -e "${RED}❌ INCIDENTES_BUCKET no está definido en .env${NC}"
+    exit 1
+  fi
+
+  local region="${AWS_REGION:-us-east-1}"
+
+  if aws s3api head-bucket --bucket "${INCIDENTES_BUCKET}" 2>/dev/null; then
+    echo -e "${GREEN}✅ Bucket '${INCIDENTES_BUCKET}' disponible${NC}"
+  else
+    echo -e "${YELLOW}🔨 Creando bucket '${INCIDENTES_BUCKET}'...${NC}"
+    if [ "${region}" = "us-east-1" ]; then
+      aws s3api create-bucket --bucket "${INCIDENTES_BUCKET}" >/dev/null
+    else
+      aws s3api create-bucket --bucket "${INCIDENTES_BUCKET}" --create-bucket-configuration LocationConstraint="${region}" >/dev/null
+    fi
+    aws s3api put-bucket-versioning --bucket "${INCIDENTES_BUCKET}" --versioning-configuration Status=Enabled >/dev/null
+    aws s3api put-public-access-block --bucket "${INCIDENTES_BUCKET}" --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true >/dev/null
+    echo -e "${GREEN}✅ Bucket creado${NC}"
+  fi
+}
+
 upload_airflow_dag() {
   local source_file="Analitica/etl_dynamodb.py"
   local target_uri="s3://${ANALITICA_S3_BUCKET}/dags/etl_dynamodb.py"
@@ -117,6 +140,7 @@ deploy_services() {
     echo -e "\n${BLUE}🚀 Desplegando microservicios con Serverless Compose...${NC}"
     prepare_dependencies
     ensure_analitica_bucket
+    ensure_incidentes_bucket
     upload_airflow_dag
     sls deploy
     echo -e "${GREEN}✅ Microservicios desplegados${NC}"
@@ -141,11 +165,25 @@ remove_infrastructure() {
     aws dynamodb delete-table --table-name ${TABLE_LOGS} 2>/dev/null || echo "Tabla ${TABLE_LOGS} no existe"
     aws dynamodb delete-table --table-name ${TABLE_CONEXIONES} 2>/dev/null || echo "Tabla ${TABLE_CONEXIONES} no existe"
     
-    # Eliminar bucket S3
-    echo -e "${YELLOW}Eliminando bucket S3...${NC}"
+    # Eliminar bucket S3 de datos
+    echo -e "${YELLOW}Eliminando bucket S3 de datos...${NC}"
     S3_BUCKET="alerta-utec-data-${AWS_ACCOUNT_ID}"
     aws s3 rm s3://${S3_BUCKET} --recursive 2>/dev/null || echo "Bucket ${S3_BUCKET} no existe"
     aws s3 rb s3://${S3_BUCKET} 2>/dev/null || echo "Bucket ${S3_BUCKET} no existe"
+    
+    # Eliminar bucket de incidentes
+    if [ -n "${INCIDENTES_BUCKET}" ]; then
+        echo -e "${YELLOW}Eliminando bucket de incidentes...${NC}"
+        aws s3 rm s3://${INCIDENTES_BUCKET} --recursive 2>/dev/null || echo "Bucket ${INCIDENTES_BUCKET} no existe"
+        aws s3 rb s3://${INCIDENTES_BUCKET} 2>/dev/null || echo "Bucket ${INCIDENTES_BUCKET} no existe"
+    fi
+    
+    # Eliminar bucket de analítica
+    if [ -n "${ANALITICA_S3_BUCKET}" ]; then
+        echo -e "${YELLOW}Eliminando bucket de analítica...${NC}"
+        aws s3 rm s3://${ANALITICA_S3_BUCKET} --recursive 2>/dev/null || echo "Bucket ${ANALITICA_S3_BUCKET} no existe"
+        aws s3 rb s3://${ANALITICA_S3_BUCKET} 2>/dev/null || echo "Bucket ${ANALITICA_S3_BUCKET} no existe"
+    fi
     
     echo -e "${GREEN}✅ Infraestructura eliminada${NC}"
 }
