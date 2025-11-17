@@ -306,6 +306,24 @@ def lambda_handler(event, context):
             "body": json.dumps({"message": "El estado debe ser 'en_progreso' o 'resuelto' para Admin"})
         }
 
+    empleado_correo = None
+    if estado_nuevo == "en_progreso":
+        empleado_correo = body.get("empleado_correo")
+        if not empleado_correo:
+            registrar_log_sistema(
+                nivel="WARNING",
+                mensaje="Falta 'empleado_correo' cuando estado es 'en_progreso'",
+                servicio="cambiar_estado_incidencia",
+                contexto={"body_recibido": body}
+            )
+            return {
+                "statusCode": 400,
+                "headers": CORS_HEADERS,
+                "body": json.dumps({
+                    "message": "El campo 'empleado_correo' es obligatorio cuando el estado es 'en_progreso'"
+                })
+            }
+
     try:
         response = incidentes_table.get_item(Key={'incidente_id': incidente_id})
         if 'Item' not in response:
@@ -339,7 +357,10 @@ def lambda_handler(event, context):
     incidente_nuevo = dict(incidente_actual)
     incidente_nuevo["estado"] = estado_nuevo
     incidente_nuevo["updated_at"] = datetime.now(timezone.utc).isoformat()
-    
+
+    if estado_nuevo == "en_progreso":
+        incidente_nuevo["empleado_correo"] = empleado_correo
+
     try:
         incidentes_table.put_item(Item=incidente_nuevo)
 
@@ -359,7 +380,8 @@ def lambda_handler(event, context):
             contexto={
                 "incidente_id": incidente_id,
                 "nuevo_estado": estado_nuevo,
-                "admin_correo": usuario_autenticado["correo"]
+                "admin_correo": usuario_autenticado["correo"],
+                "empleado_correo": incidente_nuevo.get("empleado_correo")
             }
         )
 
@@ -370,7 +392,6 @@ def lambda_handler(event, context):
             estado_nuevo=estado_nuevo
         )
 
-        # Notificación en vivo por WebSocket
         mensaje_notif = f"El incidente {incidente_id} cambió su estado a '{estado_nuevo}'."
 
         _notificar_incidente_ws(

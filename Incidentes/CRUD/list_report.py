@@ -40,8 +40,8 @@ def _safe_int(v, default):
     except Exception:
         return default
 
+
 def lambda_handler(event, context):
-    # ---- Auth ----
     headers = event.get("headers") or {}
     auth_header = headers.get("Authorization") or headers.get("authorization") or ""
     if auth_header.lower().startswith("bearer "):
@@ -71,8 +71,26 @@ def lambda_handler(event, context):
     if page < 0:
         page = 0
 
+    filtro_tipo = body.get("tipo")
+    filtro_nivel = body.get("nivel_urgencia")
+    filtro_estado = body.get("estado")
+
+    filter_expr = None
+    if filtro_tipo:
+        cond = Attr("tipo").eq(filtro_tipo)
+        filter_expr = cond if filter_expr is None else (filter_expr & cond)
+    if filtro_nivel:
+        cond = Attr("nivel_urgencia").eq(filtro_nivel)
+        filter_expr = cond if filter_expr is None else (filter_expr & cond)
+    if filtro_estado:
+        cond = Attr("estado").eq(filtro_estado)
+        filter_expr = cond if filter_expr is None else (filter_expr & cond)
+
     total = 0
     count_args = {"Select": "COUNT"}
+    if filter_expr is not None:         
+        count_args["FilterExpression"] = filter_expr
+
     lek = None
     while True:
         if lek:
@@ -95,6 +113,9 @@ def lambda_handler(event, context):
         })
 
     qargs = {"Limit": size}
+    if filter_expr is not None:        
+        qargs["FilterExpression"] = filter_expr
+
     lek = None
     for _ in range(page):
         if lek:

@@ -71,7 +71,18 @@ def lambda_handler(event, context):
     if page < 0:
         page = 0
 
+    filtro_tipo = body.get("tipo")
+    filtro_nivel = body.get("nivel_urgencia")
+    filtro_estado = body.get("estado")
+
     filter_expr = Attr("usuario_correo").eq(correo_usuario)
+
+    if filtro_tipo:
+        filter_expr = filter_expr & Attr("tipo").eq(filtro_tipo)
+    if filtro_nivel:
+        filter_expr = filter_expr & Attr("nivel_urgencia").eq(filtro_nivel)
+    if filtro_estado:
+        filter_expr = filter_expr & Attr("estado").eq(filtro_estado)
 
     scan_kwargs = {"FilterExpression": filter_expr}
     all_items = []
