@@ -7,13 +7,20 @@ Este documento proporciona una guía rápida del proyecto **Alerta UTEC** y mues
 https://drive.google.com/file/d/1clMBabNp_SR7RyuozoejcUAui2koGZVz/view?usp=sharing
 
 **Credenciales Autoridad**
-  correo: autoridad@utec.edu.pe
-  contrasena: autoridad123
-
+  ```json
+  {
+  "correo": "autoridad@utec.edu.pe",
+  "contrasena": "autoridad123"
+  }
+  ```
 **Credenciales Personla**
-  correo: miguel.torres@utec.edu.pe
-  contrasena: hash_b97d46b6491a4b8b
-  
+  ```json
+  {
+  "correo": "miguel.torres@utec.edu.pe",
+  "contrasena": "hash_b97d46b6491a4b8b"
+  }
+  ```
+
 ### Variables de entorno (breve)
 
 A continuación se listan las variables de entorno más relevantes y su propósito general. Estas deben configurarse antes del despliegue (revisar `serverless.yml` y `setup_backend.sh`).
