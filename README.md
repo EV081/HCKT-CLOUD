@@ -555,6 +555,18 @@ Ejemplo (rápido):
      - Headers: `Authorization: Bearer <token>` (solo roles administrativos)
      - Cuerpo (opcional): `{ "page": 0, "size": 20 }`
 
+-----------------------------------------
 
+### Requerimientos del sistema
 
+| # | Requerimiento | Estado |
+|---:|---|:---:|
+| 1 | Registro y autenticación de usuarios • Registro e inicio con credenciales institucionales • Roles: estudiante, personal_administrativo, autoridad | ✅ |
+| 2 | Reporte de incidentes • Crear reportes con tipo, ubicación, descripción, nivel de urgencia • DynamoDB para almacenamiento • Identificador único por reporte | ✅ |
+| 3 | Actualización y seguimiento en tiempo real • Actualización de estado con WebSockets • Notificaciones instantáneas en cambios de estado • Estados: pendiente, en atención, resuelto | ✅ |
+| 4 | Panel administrativo • Visualizar incidentes activos • Filtrar, priorizar y cerrar reportes • Actualizaciones en tiempo real | ✅ |
+| 5 | Orquestación con Apache Airflow • Clasificación automática, envío de notificaciones, generación de reportes periódicos | ✅  |
+| 6 | Gestión de notificaciones • WebSocket y notificaciones asíncronas (correo/SMS) según gravedad | ✅ |
+| 7 | Historial y trazabilidad • Historial completo de acciones (creación/actualizaciones/fechas/responsables) | ✅ |
+| 8 | Escalabilidad y resiliencia • Arquitectura serverless, escalado automático de Lambdas y DynamoDB | ✅ |
 
