@@ -2,6 +2,20 @@
 
 Este documento proporciona una guía rápida del proyecto **Alerta UTEC** y muestra cómo usar los servicios incluidos en la colección de Postman adjunta. Atención: el despliegue no se realiza con `sls deploy` de forma directa — vea la sección de despliegue.
 
+### Variables de entorno (breve)
+
+A continuación se listan las variables de entorno más relevantes y su propósito general. Estas deben configurarse antes del despliegue (revisar `serverless.yml` y `setup_backend.sh`).
+
+- `TABLE_INCIDENTES`: tabla DynamoDB donde se almacenan los incidentes.
+- `TABLE_USUARIOS`: tabla DynamoDB de usuarios y credenciales.
+- `TABLE_LOGS`: tabla DynamoDB para logs y auditoría.
+- `TABLE_CONEXIONES`: tabla DynamoDB para almacenar conexiones WebSocket activas.
+- `INCIDENTES_BUCKET`: bucket S3 donde se guardan evidencias/ficheros relacionados a incidentes.
+- `LAMBDA_NOTIFY_INCIDENTE`: nombre/ARN de la Lambda encargada de notificaciones (invocada desde handlers).
+- `WEBSOCKET_API_ENDPOINT`: endpoint del API Gateway WebSocket para enviar mensajes.
+- `BREVO_API_KEY`, `EMAIL_FROM`: credenciales para envío de correos (Brevo) y dirección remitente.
+
+
 ### Nota de despliegue (IMPORTANTE)
 
 No use `sls deploy` directamente sin preparar los recursos. Use el script de orquestación `./setup_backend.sh` en la raíz del repositorio. Ese script crea tablas DynamoDB requeridas, instala dependencias, genera datos de ejemplo y finalmente ejecuta el despliegue ordenado con Serverless Framework.
@@ -336,9 +350,202 @@ Ejemplo (rápido):
      - Método: POST
      - URL: `{{baserUrl_analitica}}/analitica/trigger-etl`
 
-   - **Incidentes por piso / por tipo / tiempo de resolución**
-     - Método: GET
-     - URL: `{{baserUrl_analitica}}/analitica/incidentes-por-piso`
+    - **Incidentes por piso**
+      - Método: GET
+      - URL: `{{baserUrl_analitica}}/analitica/incidentes-por-piso`
+      - Respuesta (ejemplo):
+
+        ```json
+        {
+          "descripcion": "Análisis de incidentes por piso y estado",
+          "resultados": [
+            { "piso": "1", "estado": "en_progreso", "total_incidentes": "1" },
+            { "piso": "1", "estado": "reportado", "total_incidentes": "3" },
+            { "piso": "1", "estado": "resuelto", "total_incidentes": "1" },
+            { "piso": "2", "estado": "en_progreso", "total_incidentes": "2" },
+            { "piso": "2", "estado": "reportado", "total_incidentes": "1" },
+            { "piso": "2", "estado": "resuelto", "total_incidentes": "4" },
+            { "piso": "3", "estado": "en_progreso", "total_incidentes": "1" },
+            { "piso": "3", "estado": "reportado", "total_incidentes": "1" },
+            { "piso": "3", "estado": "resuelto", "total_incidentes": "1" },
+            { "piso": "4", "estado": "reportado", "total_incidentes": "3" },
+            { "piso": "5", "estado": "reportado", "total_incidentes": "1" },
+            { "piso": "5", "estado": "resuelto", "total_incidentes": "1" }
+          ],
+          "total_filas": 12
+        }
+        ```
+
+    - **Incidentes por tipo**
+      - Método: GET
+      - URL: `{{baserUrl_analitica}}/analitica/incidentes-por-tipo`
+      - Respuesta (ejemplo):
+
+        ```json
+        {
+          "descripcion": "Distribución de incidentes por tipo y nivel de urgencia",
+          "resultados": [
+            { "tipo": "TI", "nivel_urgencia": "alto", "cantidad": "3", "porcentaje": "15.0" },
+            { "tipo": "TI", "nivel_urgencia": "medio", "cantidad": "2", "porcentaje": "10.0" },
+            { "tipo": "limpieza", "nivel_urgencia": "medio", "cantidad": "1", "porcentaje": "5.0" },
+            { "tipo": "mantenimiento", "nivel_urgencia": "alto", "cantidad": "1", "porcentaje": "5.0" },
+            { "tipo": "mantenimiento", "nivel_urgencia": "bajo", "cantidad": "1", "porcentaje": "5.0" },
+            { "tipo": "mantenimiento", "nivel_urgencia": "critico", "cantidad": "2", "porcentaje": "10.0" },
+            { "tipo": "mantenimiento", "nivel_urgencia": "medio", "cantidad": "2", "porcentaje": "10.0" },
+            { "tipo": "otro", "nivel_urgencia": "alto", "cantidad": "2", "porcentaje": "10.0" },
+            { "tipo": "otro", "nivel_urgencia": "bajo", "cantidad": "2", "porcentaje": "10.0" },
+            { "tipo": "otro", "nivel_urgencia": "critico", "cantidad": "1", "porcentaje": "5.0" },
+            { "tipo": "seguridad", "nivel_urgencia": "bajo", "cantidad": "2", "porcentaje": "10.0" },
+            { "tipo": "seguridad", "nivel_urgencia": "medio", "cantidad": "1", "porcentaje": "5.0" }
+          ],
+          "total_filas": 12
+        }
+        ```
+
+    - **Tiempo de resolución**
+      - Método: GET
+      - URL: `{{baserUrl_analitica}}/analitica/tiempo-resolucion`
+      - Respuesta (ejemplo):
+
+        ```json
+        {
+          "descripcion": "Análisis de tiempo de resolución de incidentes",
+          "resultados": [
+            {
+              "incidente_id": "59dd3d6d-a55d-4830-84eb-05de0edbd724",
+              "titulo": "Aire acondicionado no funciona",
+              "tipo": "TI",
+              "nivel_urgencia": "alto",
+              "creado_en": "2025-10-29T18:10:11.583441",
+              "actualizado_en": "2025-10-30T00:10:11.583441",
+              "estado": "resuelto",
+              "horas_resolucion": "6"
+            },
+            {
+              "incidente_id": "60943c48-94dc-439a-8ac0-907731142b33",
+              "titulo": "Proyector dañado",
+              "tipo": "TI",
+              "nivel_urgencia": "alto",
+              "creado_en": "2025-11-07T18:10:11.583661",
+              "actualizado_en": "2025-11-08T04:10:11.583661",
+              "estado": "resuelto",
+              "horas_resolucion": "10"
+            },
+            {
+              "incidente_id": "cdb2f3e9-83e2-45ac-88c5-e8958e56187d",
+              "titulo": "Aire acondicionado no funciona",
+              "tipo": "mantenimiento",
+              "nivel_urgencia": "critico",
+              "creado_en": "2025-10-26T18:10:11.583525",
+              "actualizado_en": "2025-10-27T16:10:11.583525",
+              "estado": "resuelto",
+              "horas_resolucion": "22"
+            },
+            {
+              "incidente_id": "2d766683-04da-45ca-8fd5-bf5eda2f62c4",
+              "titulo": "Silla rota",
+              "tipo": "mantenimiento",
+              "nivel_urgencia": "critico",
+              "creado_en": "2025-10-30T18:10:11.583472",
+              "actualizado_en": "2025-11-01T01:10:11.583472",
+              "estado": "resuelto",
+              "horas_resolucion": "31"
+            },
+            {
+              "incidente_id": "d0395135-1ca6-4436-b823-5ff3db59a180",
+              "titulo": "Ventana rota en aula",
+              "tipo": "otro",
+              "nivel_urgencia": "bajo",
+              "creado_en": "2025-11-05T18:10:11.583584",
+              "actualizado_en": null,
+              "estado": "resuelto",
+              "horas_resolucion": null
+            },
+            {
+              "incidente_id": "3201aeeb-588a-4b1d-ba28-baceaa98a306",
+              "titulo": "Proyector dañado",
+              "tipo": "limpieza",
+              "nivel_urgencia": "medio",
+              "creado_en": "2025-11-06T18:10:11.583629",
+              "actualizado_en": null,
+              "estado": "resuelto",
+              "horas_resolucion": null
+            },
+            {
+              "incidente_id": "94706d8c-18c3-42af-b775-5f9b8caa99a1",
+              "titulo": "Silla rota",
+              "tipo": "otro",
+              "nivel_urgencia": "alto",
+              "creado_en": "2025-10-27T18:10:11.583643",
+              "actualizado_en": null,
+              "estado": "resuelto",
+              "horas_resolucion": null
+            }
+          ],
+          "total_filas": 7
+        }
+        ```
+
+    - **Reportes por usuario**
+      - Método: GET
+      - URL: `{{baserUrl_analitica}}/analitica/reportes-por-usuario`
+      - Respuesta (ejemplo):
+
+        ```json
+        {
+          "descripcion": "Top 20 usuarios estudiantes por cantidad de reportes",
+          "resultados": [
+            {
+              "usuario_correo": "miguel.torres@gmail.com",
+              "nombre": "Miguel Torres",
+              "rol": "estudiante",
+              "total_reportes": "4",
+              "reportes_resueltos": "1",
+              "reportes_en_progreso": "1",
+              "reportes_pendientes": "2"
+            },
+            {
+              "usuario_correo": "maría.garcía@outlook.com",
+              "nombre": "María García",
+              "rol": "estudiante",
+              "total_reportes": "3",
+              "reportes_resueltos": "1",
+              "reportes_en_progreso": "0",
+              "reportes_pendientes": "2"
+            },
+            {
+              "usuario_correo": "ana.martínez@outlook.com",
+              "nombre": "Ana Martínez",
+              "rol": "estudiante",
+              "total_reportes": "2",
+              "reportes_resueltos": "1",
+              "reportes_en_progreso": "1",
+              "reportes_pendientes": "0"
+            }
+          ],
+          "total_filas": 12
+        }
+        ```
+
+    - **Requisitos de red para Analítica (VPC / Subnets)**
+
+      Para ejecutar los pipelines de analítica (ECS / Airflow) se requiere configurar `ANALITICA_VPC_ID` y `ANALITICA_SUBNETS` (dos subnets) en las variables de entorno. Las subnets deben indicarse como IDs separados por comas.
+
+      Pasos rápidos para obtenerlos desde la consola de AWS:
+
+      1. Accede a la consola de AWS -> busca y abre el servicio **VPC**.
+      2. En el menú izquierdo selecciona **Your VPCs** (o "Tus VPCs"). Localiza la VPC que quieras reutilizar y copia su **VPC ID** (p. ej. `vpc-0a1b2c3d4e5f6g7h`). Ese valor va en `ANALITICA_VPC_ID`.
+      3. Ahora ve a **Subnets** en el mismo servicio VPC. Elige dos subnets (por ejemplo, dos subnets privadas o las que tu arquitectura requiera) y copia sus IDs (p. ej. `subnet-aaaaaaaa,subnet-bbbbbbbb`). Pegarlos separados por coma en `ANALITICA_SUBNETS`.
+
+      Ejemplo en `.env` (o `.env.example` ya presente en el repo):
+
+      ```dotenv
+      ANALITICA_VPC_ID=vpc-0a1b2c3d4e5f6g7h
+      ANALITICA_SUBNETS=subnet-aaaaaaaa,subnet-bbbbbbbb
+      ```
+
+      - Nota: por defecto muchas cuentas tienen al menos una VPC; puedes reutilizar esa VPC si cumple los requisitos de red. Asegúrate de escoger subnets con acceso a los recursos necesarios (NAT/Internet o rutas privadas según tu diseño).
+
 
 5. **Logs**
 
@@ -348,14 +555,6 @@ Ejemplo (rápido):
      - Headers: `Authorization: Bearer <token>` (solo roles administrativos)
      - Cuerpo (opcional): `{ "page": 0, "size": 20 }`
 
-### Despliegue sin servidor (Serverless)
 
-Este proyecto usa Serverless Framework, pero debe desplegarse usando el script de orquestación `setup_backend.sh` en la raíz. El script realiza en orden:
 
-| 9 | Análisis Predictivo y visualización (Opcional) • Integración con SageMaker para modelos predictivos y visualizaciones | ✅ (opcional, requiere integración adicional) |
-
-Si quieres, puedo:
-- generar ejemplos de payload más completos para cada endpoint;
-- añadir la lista de variables de entorno por función en el `README`;
-- crear un archivo `API.md` separado con ejemplos curl/Postman.
 
